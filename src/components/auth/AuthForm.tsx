@@ -98,7 +98,7 @@ export default function AuthForm() {
       return;
     }
 
-    console.log('Requesting OTP for:', formData.phone);
+    console.log('Requesting OTP for:', formData.phone);''
     setOtpState({
       requested: true,
       verified: false,
