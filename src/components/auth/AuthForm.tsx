@@ -119,7 +119,7 @@ export default function AuthForm() {
   };
 
   const socialLogin = (provider: string) => {
-    console.log('Logging in', provider);
+    console.log('Logging in with:', provider);
     alert(`Logging in with ${provider}`);
   };
 

@@ -7,7 +7,7 @@ interface TabNavigationProps {
 
 export default function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
   return (
-    <div className="flex gap-2 mb-8 bg-gray-100 p-1 rounded-xl">
+    <div className="flex gap-2 p-1 mb-8 bg-gray-100 rounded-xl">
       <button
         className={`flex-1 py-3 px-4 border-none bg-transparent rounded-lg cursor-pointer text-base font-medium transition-all duration-300 ${
           activeTab === 'signin' 
@@ -15,7 +15,9 @@ export default function TabNavigation({ activeTab, onTabChange }: TabNavigationP
             : 'text-gray-600'
         }`}
         onClick={() => onTabChange('signin')}
+        
       >
+    
         Sign In
       </button>
       <button

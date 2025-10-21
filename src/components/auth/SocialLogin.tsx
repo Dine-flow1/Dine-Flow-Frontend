@@ -27,7 +27,7 @@ export default function SocialLogin({ onSocialLogin }: SocialLoginProps) {
         </button>
         <button
           type="button"
-          onClick={() => onSocialLogin('microsoft')}
+          onClick={() => onSocialLogin('facebook')}
           className="flex-1 py-3 px-4 border-2 border-gray-200 bg-white rounded-xl cursor-pointer transition-all duration-300 flex items-center justify-center gap-2 font-medium hover:border-[#6b2c3e] hover:bg-gray-50"
         >
           <FaFacebook/>
