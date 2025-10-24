@@ -1,176 +1,111 @@
-"use client";
+'use client';
 
-import React, { useEffect, useRef } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { gsap } from "gsap";
-import * as FiIcons from "react-icons/fi";
+import { usePathname, useRouter } from "next/navigation";
+import { Menu, X } from "lucide-react";
 
-const { FiHome, FiBarChart2, FiSettings, FiUser, FiMenu } = FiIcons;
-
-interface NavItem {
-  path: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
-
-interface NavbarProps {
-  userRole?: "admin" | "restaurant" | "guest";
-}
-
-const Navbar: React.FC<NavbarProps> = ({ userRole = "guest" }) => {
+export default function Navbar() {
+  const router = useRouter();
   const pathname = usePathname();
-  const navRef = useRef<HTMLElement>(null);
-  const logoRef = useRef<HTMLAnchorElement>(null);
-  const navItemsRef = useRef<HTMLDivElement>(null);
-  const profileRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const getNavItems = (): NavItem[] => {
-    switch (userRole) {
-      case "admin":
-        return [
-          { path: "/dashboard", label: "Dashboard", icon: FiHome },
-          { path: "/analytics", label: "Analytics", icon: FiBarChart2 },
-          { path: "/settings", label: "Settings", icon: FiSettings },
-        ];
-      case "restaurant":
-        return [
-          { path: "/restaurant", label: "Restaurant", icon: FiHome },
-          { path: "/menu", label: "Menu", icon: FiMenu },
-          { path: "/analytics", label: "Analytics", icon: FiBarChart2 },
-        ];
-      default:
-        return [
-          { path: "/", label: "Home", icon: FiHome },
-          { path: "/auth", label: "Login", icon: FiUser },
-        ];
-    }
-  };
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Navbar slide down animation
-      gsap.fromTo(
-        navRef.current,
-        { y: -100, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1, ease: "power3.out" }
-      );
-
-      // Logo animation
-      gsap.fromTo(
-        logoRef.current,
-        { scale: 0, rotation: -180 },
-        {
-          scale: 1,
-          rotation: 0,
-          duration: 0.8,
-          ease: "back.out(1.7)",
-          delay: 0.2,
-        }
-      );
-
-      // Nav items stagger animation
-      if (navItemsRef.current) {
-        gsap.fromTo(
-          navItemsRef.current.children,
-          { y: -20, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.6,
-            stagger: 0.1,
-            delay: 0.4,
-            ease: "power2.out",
-          }
-        );
-      }
-
-      // Profile animation
-      gsap.fromTo(
-        profileRef.current,
-        { scale: 0 },
-        { scale: 1, duration: 0.5, delay: 0.8, ease: "power1.in" }
-      );
-    });
-
-    return () => ctx.revert();
-  }, []);
-
-  // Hover animation for nav items
-  const handleNavItemHover = (element: HTMLElement) => {
-    gsap.to(element, {
-      y: -2,
-      scale: 1.05,
-      duration: 0.3,
-      ease: "power2.out",
-    });
-  };
-
-  const handleNavItemHoverOut = (element: HTMLElement) => {
-    gsap.to(element, {
-      y: 0,
-      scale: 1,
-      duration: 0.3,
-      ease: "power2.out",
-    });
-  };
-
-  const SafeIcon = ({
-    icon: Icon,
-    className,
-  }: {
-    icon: React.ComponentType<{ className?: string }>;
-    className?: string;
-  }) => {
-    return <Icon className={className} />;
+  // Helper function to handle navigation and close mobile menu
+  const handleNavigation = (path: string) => {
+    setIsOpen(false);
+    router.push(path);
   };
 
   return (
-    <nav
-      ref={navRef}
-      className="fixed top-0 left-0 right-0 z-50 border-b shadow-lg bg-linear-to-br from-[#6b2c3e] to-[#4a1f2d]"
-    >
-      <div className="px-6 py-4 mx-auto max-w-7xl">
-        <div className="flex items-center justify-between">
+    <nav className="fixed top-0 z-50 w-full border-b bg-white/80 backdrop-blur-md border-gold-100">
+      <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link ref={logoRef} href="/" className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-10 h-10 bg-white rounded-full">
-              <span className="text-xl font-bold text-red-950">D</span>
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-linear-to-br from-gold-500 to-wine-600">
+              <span className="text-lg font-bold text-white">🍽️</span>
             </div>
-            <h1 className="text-2xl font-semibold text-white">DineFlow</h1>
+            <span className="text-xl font-bold text-foreground">RestroHub</span>
           </Link>
 
-          {/* Navigation Items */}
-          <div
-            ref={navItemsRef}
-            className="items-center hidden space-x-8 md:flex"
-          >
-            {getNavItems().map((item) => (
-              <Link
-                key={item.path}
-                href={item.path}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
-                  pathname === item.path
-                    ? "text-white border-b-2 border-gray-400"
-                    : "text-white hover:text-white-500"
-                }`}
-                onMouseEnter={(e) => handleNavItemHover(e.currentTarget)}
-                onMouseLeave={(e) => handleNavItemHoverOut(e.currentTarget)}
-              >
-                <SafeIcon icon={item.icon} className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
-              </Link>
-            ))}
+          {/* Desktop Menu */}
+          <div className="items-center hidden gap-8 md:flex">
+            <Link 
+              href="/hotels" 
+              className="font-medium transition-colors text-foreground hover:text-gold-600"
+            >
+              Hotels
+            </Link>
+            <Link 
+              href="/order" 
+              className="font-medium transition-colors text-foreground hover:text-gold-600"
+            >
+              Order
+            </Link>
           </div>
 
-          {/* Profile */}
-          <div className="flex items-center justify-center w-10 h-10 bg-white rounded-full cursor-pointer">
-            <SafeIcon icon={FiUser} className="w-5 h-5 text-red-950" />
+          {/* CTA Buttons */}
+          <div className="items-center hidden gap-4 md:flex">
+            <Link 
+              href="/login" 
+              className="px-6 py-2 font-semibold transition-colors border-2 rounded-lg text-gold-700 border-gold-500 hover:bg-gold-50"
+            >
+              Login
+            </Link>
+            <Link 
+              href="/register" 
+              className="btn-primary"
+            >
+              Sign Up
+            </Link>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="p-2 transition-colors rounded-lg md:hidden hover:bg-gold-100"
+          >
+            {isOpen ? (
+              <X className="w-6 h-6 text-foreground" />
+            ) : (
+              <Menu className="w-6 h-6 text-foreground" />
+            )}
+          </button>
         </div>
+
+        {/* Mobile Menu */}
+        {isOpen && (
+          <div className="pb-6 space-y-4 md:hidden animate-slide-up">
+            <button 
+              onClick={() => handleNavigation("/hotels")} 
+              className="block w-full font-medium text-left transition-colors text-foreground hover:text-gold-600"
+            >
+              Hotels
+            </button>
+            <button 
+              onClick={() => handleNavigation("/order")} 
+              className="block w-full font-medium text-left transition-colors text-foreground hover:text-gold-600"
+            >
+              Order
+            </button>
+            <div className="flex gap-3 pt-4">
+              <button 
+                onClick={() => handleNavigation("/login")} 
+                className="flex-1 px-4 py-2 text-sm font-semibold transition-colors border-2 rounded-lg text-gold-700 border-gold-500 hover:bg-gold-50"
+              >
+                Login
+              </button>
+              <button 
+                onClick={() => handleNavigation("/resigter")} 
+                className="flex-1 text-sm btn-primary bg-amber-300"
+                
+              >
+                Sign Up
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );
-};
-
-export default Navbar;
+}
