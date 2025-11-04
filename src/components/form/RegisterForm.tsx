@@ -20,8 +20,8 @@ export const RegistrationForm = ({
   loading,
   onRestaurantChange,
   onOwnerChange,
-  onLogoChange,
-  onBannerChange,
+  // onLogoChange,
+  // onBannerChange,
   onSubmit
 }: RegistrationFormProps) => {
   return (

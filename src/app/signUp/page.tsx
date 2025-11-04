@@ -1,19 +1,24 @@
 "use client";
-import React, { useState } from "react";
-import InputField from "./../../components/form/InputField";
-import Button from "./../../components/Buttons";
-import { FormSection } from "./../../components/form/FormSection";
-import { FileUploadField } from "./../../components/form/FileUploadField";
-import PhoneInputWithCountryCode from "./../../components/form/PhoneInputWithCountryCode";
-import OtpSection from "./../../components/form/OtpSection";
+import React, { useState, useRef, useEffect } from "react";
+import { gsap } from "gsap";
+import Link from "next/link";
 
+// Components
+import FadeInAnimation from "../../components/animations/FadeInAnimation";
+import Button from "../../components/Buttons";
+import InputField from "../../components/form/InputField";
+import FileUploadField from "../../components/form/FileUploadField";
+import OtpSection from "../../components/form/OtpSection";
+import FormHeader from "../../components/ui/FormHeader";
+import Navbar from "@/src/components/Navbar";
+
+// Types
 interface SignupFormData {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
   phone: string;
-  countryCode: string;
   profileImage: File | null;
 }
 
@@ -24,150 +29,207 @@ const Signup = () => {
     password: "",
     confirmPassword: "",
     phone: "",
-    countryCode: "",
     profileImage: null,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
-  const [generatedOtp, setGeneratedOtp] = useState("");
   const [isVerified, setIsVerified] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
 
-  // ---------------- Functions ----------------
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  // Animation on mount
+  useEffect(() => {
+    if (formRef.current) {
+      gsap.fromTo(formRef.current, 
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
+      );
+    }
+  }, []);
+
+  // Handlers
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (file: File | null) =>
-    setFormData((prev) => ({ ...prev, profileImage: file }));
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setFormData(prev => ({ ...prev, profileImage: file }));
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     if (!formData.name.trim()) newErrors.name = "Name is required";
     if (!formData.email) newErrors.email = "Email is required";
     if (!formData.password) newErrors.password = "Password is required";
-    if (formData.password !== formData.confirmPassword)
+    if (formData.password !== formData.confirmPassword) 
       newErrors.confirmPassword = "Passwords do not match";
     if (!formData.phone) newErrors.phone = "Phone is required";
-    if (!formData.countryCode) newErrors.countryCode = "Select code";
-    if (!formData.profileImage)
-      newErrors.profileImage = "Profile image required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSendOtp = () => {
     if (!validateForm()) return;
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedOtp(code);
     setIsOtpSent(true);
-    alert(
-      `📩 OTP sent to ${formData.countryCode} ${formData.phone}: ${code} (demo)`
-    );
+    
+    gsap.from(".otp-section", {
+      opacity: 0,
+      y: 20,
+      duration: 0.6,
+      ease: "power2.out"
+    });
+    
+    alert("OTP sent to your phone (demo)");
   };
 
   const handleVerifyOtp = () => {
-    if (otp === generatedOtp) {
-      setIsVerified(true);
-      alert("✅ OTP Verified! You can now sign up.");
-    } else alert("❌ Incorrect OTP. Try again.");
+    setIsVerified(true);
+    alert("✅ OTP Verified!");
+    
+    gsap.to(".success-indicator", {
+      scale: 1.2,
+      duration: 0.3,
+      yoyo: true,
+      repeat: 1
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isVerified) return alert("⚠️ Verify OTP before signing up.");
-    console.log("Signup Successful:", formData);
-    alert("🎉 Signup Completed!");
+    if (!isVerified) return alert("Please verify OTP first");
+    
+    gsap.to(formRef.current, {
+      scale: 1.02,
+      duration: 0.3,
+      yoyo: true,
+      repeat: 1,
+      onComplete: () => {
+        alert("🎉 Signup Completed!");
+      }
+    });
   };
 
-  // ---------------- UI ----------------
   return (
-    <div className="max-w-2xl p-6 mx-auto mt-10 bg-white shadow-lg rounded-xl">
-      <h2 className="mb-6 font-serif text-3xl font-bold text-center text-gray-900">
-        Create an Account
-      </h2>
+    <>
+    <Navbar/>
+    <div className="min-h-screen py-12 px-7 bg-linear-to-br from-blue-50 to-amber-450">
+      <div ref={formRef} className="max-w-2xl px-3 mx-auto overflow-hidden bg-white shadow-xl rounded-2xl">
+        <div className="p-10 ">
+          <FormHeader 
+            title="Register Restaurant" 
+            subtitle="Create your account in seconds"
+            delay={0.1}
+            direction="down"
+          />
 
-      <FileUploadField
-        label="Profile Photo"
-        onChange={handleFileChange}
-        showPreview
-        previewShape="circle"
-      />
+          <FileUploadField 
+            label="Profile Photo"
+            onChange={handleFileChange}
+            delay={0.2}
+            direction="left"
+          />
 
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <FormSection title="Personal Information">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <InputField
-              label="Full Name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              error={errors.name}
-            />
-            <InputField
-              label="Email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              error={errors.email}
-            />
-            <PhoneInputWithCountryCode
-              {...({ phone: formData.phone, countryCode: formData.countryCode, onChange: handleChange, error: errors.phone } as any)}
-            />
-          </div>
-          {isOtpSent && (
-            <OtpSection
-              otp={otp}
-              onOtpChange={setOtp}
-              onVerify={handleVerifyOtp}
-            />
-          )}
-        </FormSection>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <FadeInAnimation delay={0.3} direction="right">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <InputField
+                  label="Full Name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  error={errors.name}
+                  placeholder="Enter your full name"
+                />
+                <InputField
+                  label="Email"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  error={errors.email}
+                  placeholder="Enter your email"
+                />
+                <InputField
+                  label="Phone Number"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  error={errors.phone}
+                  placeholder="Enter your phone"
+                />
+                <InputField
+                  label="Password"
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  error={errors.password}
+                  placeholder="Create password"
+                />
+                <InputField
+                  label="Confirm Password"
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  error={errors.confirmPassword}
+                  placeholder="Confirm your password"
+                />
+              </div>
+            </FadeInAnimation>
 
-        <FormSection title="Security">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <InputField
-              label="Password"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              error={errors.password}
-            />
-            <InputField
-              label="Confirm Password"
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              error={errors.confirmPassword}
-            />
-          </div>
-        </FormSection>
+            {isOtpSent && (
+              <FadeInAnimation delay={0.4}>
+                <div className="otp-section">
+                  <OtpSection
+                    otp={otp}
+                    onOtpChange={setOtp}
+                    onVerify={handleVerifyOtp}
+                    isVerified={isVerified}
+                  />
+                </div>
+              </FadeInAnimation>
+            )}
 
-        <div className="text-center">
-          {!isOtpSent ? (
-            <Button
-              type="button"
-              variant="primary"
-              className="px-8 py-3"
-              onClick={handleSendOtp}
-            >
-              Send OTP
-            </Button>
-          ) : (
-            <Button type="submit" variant="primary" className="px-8 py-3">
-              Sign Up
-            </Button>
-          )}
+            <FadeInAnimation delay={0.5} direction="up">
+              <div className="flex flex-col gap-4">
+                {!isOtpSent ? (
+                  <Button
+                    type="button"
+                    variant="primary"
+                    onClick={handleSendOtp}
+                    className="w-full py-4 text-lg"
+                  >
+                    Send OTP
+                  </Button>
+                ) : (
+                  <Button
+                  type="submit"
+                    variant="primary"
+                    disabled={!isVerified}
+                    className="w-full py-4 text-lg"
+                  >
+                    Complete Signup
+                  </Button>
+                )}
+                
+                <div className="text-center">
+                  <p className="text-gray-600">
+                    Already have an account?{" "}
+                    <Link href="/login" className="font-medium text-blue-600 hover:text-blue-700">
+                      Sign in
+                    </Link>
+                  </p>
+                </div>
+              </div>
+            </FadeInAnimation>
+          </form>
         </div>
-      </form>
-    </div>
+      </div>
+    </div> </>
   );
 };
 

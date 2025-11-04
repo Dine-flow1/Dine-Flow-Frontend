@@ -6,9 +6,10 @@ interface Props {
   otp: string;
   onOtpChange: (val: string) => void;
   onVerify: () => void;
+  isVerified: boolean;
 }
 
-const OtpSection = ({ otp, onOtpChange, onVerify }: Props) => (
+const OtpSection = ({ otp, onOtpChange, onVerify, isVerified }: Props) => (
   <div className="mt-4 md:col-span-2">
     <InputField
       label="Enter OTP"
@@ -16,9 +17,16 @@ const OtpSection = ({ otp, onOtpChange, onVerify }: Props) => (
       value={otp}
       onChange={(e) => onOtpChange(e.target.value)}
       placeholder="Enter 6-digit OTP"
+      maxLength={6}
     />
-    <Button type="button" variant="secondary" onClick={onVerify} className="mt-2">
-      Verify OTP
+    <Button 
+      type="button" 
+      variant={isVerified ? "primary" : "secondary"} 
+      onClick={onVerify} 
+      className="mt-2"
+      disabled={isVerified}
+    >
+      {isVerified ? "✅ Verified" : "Verify OTP"}
     </Button>
   </div>
 );

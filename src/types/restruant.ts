@@ -1,3 +1,14 @@
+import { ReactNode } from "react";
+
+export interface MenuItem {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  description: string;
+  category?: string;
+}
+
 export interface OwnerInfo {
   fullName: string;
   email: string;
@@ -8,6 +19,11 @@ export interface OwnerInfo {
 }
 
 export interface RestaurantData {
+  id: number;
+  image: string | Blob | undefined;
+  name: string | undefined;
+  cuisine: ReactNode;
+  location: ReactNode;
   restaurantName: string;
   restaurantType: string;
   description: string;
@@ -25,4 +41,6 @@ export interface RestaurantData {
   fssaiNumber: string;
   registrationNumber: string;
   createdAt?: string;
+  menu: MenuItem[];
+  
 }

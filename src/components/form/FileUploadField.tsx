@@ -1,44 +1,32 @@
-import React, { useState } from "react";
+import React from "react";
+import FadeInAnimation from "../animations/FadeInAnimation";
 
 interface FileUploadFieldProps {
   label: string;
-  accept?: string;
-  onChange: (file: File | null) => void;
-  showPreview?: boolean;
-  previewShape?: 'circle' | 'rectangle';
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  delay?: number;
+  direction?: "left" | "right" | "up" | "down";
 }
 
-export const FileUploadField = ({
-  label,
-  accept = "image/*",
-  onChange,
-  showPreview = false,
-  previewShape = 'rectangle',
-}: FileUploadFieldProps) => {
-  const [preview, setPreview] = useState<string | null>(null);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    onChange(file);
-    if (file && showPreview) setPreview(URL.createObjectURL(file));
-  };
-
-  return (
-    <div>
-      <label className="block mb-2 text-sm font-medium text-gray-700">{label}</label>
-      {showPreview && preview && (
-        <img
-          src={preview}
-          alt="Preview"
-          className={`mb-2 ${previewShape === 'circle' ? 'w-32 h-32 rounded-full' : 'w-full h-40 rounded-lg'} object-cover`}
-        />
-      )}
+const FileUploadField = ({ 
+  label, 
+  onChange, 
+  delay = 0,
+  direction = "left"
+}: FileUploadFieldProps) => (
+  <FadeInAnimation delay={delay} direction={direction}>
+    <div className="mb-6 text-center">
+      <label className="block mb-3 text-sm font-medium text-gray-700">
+        {label}
+      </label>
       <input
         type="file"
-        accept={accept}
-        onChange={handleFileChange}
-        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+        onChange={onChange}
+        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+        accept="image/*"
       />
     </div>
-  );
-};
+  </FadeInAnimation>
+);
+
+export default FileUploadField;
