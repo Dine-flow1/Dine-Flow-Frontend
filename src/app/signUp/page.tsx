@@ -5,12 +5,13 @@ import Link from "next/link";
 
 // Components
 import FadeInAnimation from "../../components/animations/FadeInAnimation";
-import Button from "../../components/Buttons";
+import Button from "../../components/ui/Buttons";
 import InputField from "../../components/form/InputField";
 import FileUploadField from "../../components/form/FileUploadField";
 import OtpSection from "../../components/form/OtpSection";
 import FormHeader from "../../components/ui/FormHeader";
-import Navbar from "@/src/components/Navbar";
+import Navbar from "@/src/components/ui/Navbar";
+import Footer from "@/src/components/ui/Footer";
 
 // Types
 interface SignupFormData {
@@ -115,11 +116,11 @@ const Signup = () => {
   return (
     <>
     <Navbar/>
-    <div className="min-h-screen py-12 px-7 bg-linear-to-br from-blue-50 to-amber-450">
+    <div className="min-h-screen px-10 py-12 justify-items-center bg-linear-to-br from-blue-50 to-amber-450">
       <div ref={formRef} className="max-w-2xl px-3 mx-auto overflow-hidden bg-white shadow-xl rounded-2xl">
         <div className="p-10 ">
           <FormHeader 
-            title="Register Restaurant" 
+            title="Sign Up" 
             subtitle="Create your account in seconds"
             delay={0.1}
             direction="down"
@@ -229,7 +230,9 @@ const Signup = () => {
           </form>
         </div>
       </div>
-    </div> </>
+    </div>
+      <Footer/>
+     </>
   );
 };
 

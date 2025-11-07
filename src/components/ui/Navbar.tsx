@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Button from './Buttons';
-import { navigation } from '../data/navigation';
+import { navigation } from '../../data/navigation';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -20,14 +20,14 @@ const Navbar = () => {
 
   return (
     <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-transparent backdrop-blur-md shadow-lg' : 'bg-transparent'
+      isScrolled ? 'bg-transparent backdrop-blur-lg shadow-lg' : 'bg-transparent'
     }`}>
       <div className="container px-4 mx-auto">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-linear-to-r from-primary-600 to-primary-400" />
-            <span className="font-serif text-xl sm:text-2xl font-bold text-amber-700">DineFlow</span>
+            <div className="w-6 h-6 rounded-lg sm:w-8 sm:h-8 bg-linear-to-r from-primary-600 to-primary-400" />
+            <span className="font-serif text-xl font-bold sm:text-2xl text-amber-700">DineFlow</span>
           </Link>
 
           {/* Desktop Navigation */}

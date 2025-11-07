@@ -4,6 +4,12 @@ export interface Feature {
   title: string;
   description: string;
 }
+export interface Feature {
+  icon: string;
+  title: string;
+  description: string;
+  cta?: Feature;
+}
 
 export const features: Feature[] = [
   {

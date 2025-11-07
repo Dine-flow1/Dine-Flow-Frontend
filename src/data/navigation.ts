@@ -10,6 +10,7 @@ export const navigation: NavItem[] = [
   { name: 'Orders', href: '/order', current: false },
   { name: 'Login', href: '/login', current: false },
   { name: 'Sign Up', href: '/signUp', current: false },
+  { name: 'Subscription', href: '/subscription', current: false },
   
 ];
 

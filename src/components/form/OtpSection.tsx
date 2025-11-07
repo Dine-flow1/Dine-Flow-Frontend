@@ -1,6 +1,6 @@
 import React from 'react';
 import InputField from './InputField';
-import Button from './../Buttons';
+import Button from '../ui/Buttons';
 
 interface Props {
   otp: string;

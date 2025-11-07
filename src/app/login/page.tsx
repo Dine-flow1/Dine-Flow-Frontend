@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
-import Button from "../../components/Buttons";
+import Navbar from "../../components/ui/Navbar";
+import Footer from "../../components/ui/Footer";
+import Button from "../../components/ui/Buttons";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF } from "react-icons/fa";
 
@@ -76,7 +76,7 @@ export default function LoginPage() {
                 />
               </div>
 
-              <Button type="submit" variant="primary" className="w-full">
+              <Button type="submit" variant="primary" size="lg" className="w-full" >
                 Sign In
               </Button>
             </form>

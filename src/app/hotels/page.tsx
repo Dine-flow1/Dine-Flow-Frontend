@@ -1,8 +1,8 @@
 // app/hotels/page.tsx
 "use client"
 import { useState, useMemo } from "react";
-import Navbar from "@/src/components/Navbar";
-import RestaurantCard from "../../components/RestaurandCard";
+import Navbar from "@/src/components/ui/Navbar";
+import RestaurantCard from "../../components/ui/RestaurandCard";
 import { restaurants } from "../../data/restaurants";
 import { RestaurantData } from "../../types/restruant";
 

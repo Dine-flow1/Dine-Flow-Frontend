@@ -1,5 +1,5 @@
 import { restaurants } from "../../../data/restaurants";
-import MenuItemCard from "@/src/components/MenuItemCard";
+import MenuItemCard from "@/src/components/ui/MenuItemCard";
 
 export default function RestaurantDetail({ params }: { params: { id: string } }) {
   const restaurant = restaurants.find((r) => r.id === Number(params.id));

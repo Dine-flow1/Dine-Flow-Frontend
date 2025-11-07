@@ -4,9 +4,9 @@
 import { useState, useMemo, use } from "react";
 import { restaurants } from "@/src/data/restaurants";
 import { RestaurantData } from "@/src/types/restruant";
-import MenuItemCard from "@/src/components/MenuItemCard";
-import TableBookingForm from "../../../components/TableBookingForm";
-import Navbar from "@/src/components/Navbar";
+import MenuItemCard from "@/src/components/ui/MenuItemCard";
+import TableBookingForm from "../../../components/ui/TableBookingForm";
+import Navbar from "@/src/components/ui/Navbar";
 
 export default function RestaurantDetail({ params }: { params: Promise<{ id: string }> }) {
   
