@@ -59,7 +59,7 @@ const Header = ({ onMenuClick }: HeaderProps) => {
                   ⚙️ Settings
                 </a>
                 <div className="my-1 border-t border-gray-200"></div>
-                <a href="/logout" className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                <a href="/#" className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
                   🚪 Sign out
                 </a>
               </div>

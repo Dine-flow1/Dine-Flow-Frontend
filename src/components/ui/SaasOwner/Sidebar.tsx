@@ -16,10 +16,10 @@ interface SidebarProps {
 }
 
 const sidebarItems: SidebarItem[] = [
-  { name: 'Dashboard', href: '/dashboard', icon: '📊' },
-  { name: 'Analytics', href: '/dashboard/analytics', icon: '📈' },
-  { name: 'Users', href: '/dashboard/users', icon: '👥' },
-  { name: 'Settings', href: '/dashboard/settings', icon: '⚙️' },
+  { name: 'Dashboard', href: '/SaasOwnerDashboard', icon: '📊' },
+  { name: 'Analytics', href: '/SaasOwnerDashboard/analytics', icon: '📈' },
+  { name: 'Users', href: '/SaasOwnerDashboard/users', icon: '👥' },
+  { name: 'Settings', href: '/SaasOwnerDashboard/settings', icon: '⚙️' },
 ];
 
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
