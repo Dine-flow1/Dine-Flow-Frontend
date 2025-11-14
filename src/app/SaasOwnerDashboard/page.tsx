@@ -46,7 +46,7 @@ const Dashboard = () => {
             color="blue"
           />
         </div>
-        <div className="stats-card">
+        {/* <div className="stats-card">
           <StatsCard
             title="Conversion Rate"
             value="4.8%"
@@ -55,10 +55,10 @@ const Dashboard = () => {
             icon="📊"
             color="purple"
           />
-        </div>
+        </div> */}
         <div className="stats-card">
           <StatsCard
-            title="Resturant"
+            title="Resturant joined"
             value="38"
             change={-0.5}
             trend="up"

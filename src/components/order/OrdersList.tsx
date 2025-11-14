@@ -80,8 +80,8 @@ const OrdersList = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm border border-gray-200 mb-6">
+    <div className="max-w-4xl mx-auto ">
+      <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm border border-gray-200 mb-6 ">
         {[
           { key: 'all', label: 'All Orders' },
           { key: 'on-the-way', label: 'On the Way' },
