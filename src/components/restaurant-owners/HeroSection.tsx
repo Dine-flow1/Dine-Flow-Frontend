@@ -20,7 +20,7 @@ export const HeroSection = ({ stats }: HeroSectionProps) => {
                 </span>
               </h1>
               <p className="text-xl text-gray-600 mt-6 leading-relaxed">
-                Join thousands of successful restaurants using DINEFLOW to increase revenue, 
+                Join thousands of successful restaurants using DineFlow to increase revenue, 
                 streamline operations, and build lasting customer relationships.
               </p>
             </div>

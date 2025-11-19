@@ -1,4 +1,3 @@
-// src/types/manager.ts
 export interface RevenueData {
   date: string;
   revenue: number;
@@ -34,6 +33,20 @@ export interface FoodItem {
   ingredients: string[];
 }
 
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  joinDate: string;
+  lastLogin: string;
+  status: 'active' | 'blocked';
+  totalOrders: number;
+  totalSpent: number;
+  avatar: string;
+  role: 'customer' | 'vip' | 'premium';
+}
+
 export interface DashboardStats {
   totalRevenue: number;
   monthlyRevenue: number;
@@ -41,4 +54,7 @@ export interface DashboardStats {
   totalOrders: number;
   activeOrders: number;
   availableTables: number;
+  totalUsers: number;
+  activeUsers: number;
+  blockedUsers: number;
 }

@@ -6,7 +6,7 @@ const testimonials: OwnerTestimonial[] = [
     id: '1',
     name: 'Maria Rodriguez',
     restaurant: 'El Patio Mexicano',
-    comment: 'DINERAL helped us increase our online orders by 300% in just 3 months! The analytics are incredible.',
+    comment: 'DineFlow helped us increase our online orders by 300% in just 3 months! The analytics are incredible.',
     avatar: '👩‍🍳',
     rating: 5
   },
@@ -37,7 +37,7 @@ export const TestimonialsSection = () => {
             Trusted by Restaurant Owners
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            See how DINEFLOW is helping restaurants thrive in the digital age
+            See how DineFlow is helping restaurants thrive in the digital age
           </p>
         </div>
 

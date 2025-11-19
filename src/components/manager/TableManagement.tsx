@@ -1,6 +1,4 @@
-// src/components/manager/TableManagement.tsx
 'use client';
-
 import { Table } from '../../types/manager';
 import { useState } from 'react';
 
@@ -114,7 +112,6 @@ export const TableManagement = ({
         ))}
       </div>
 
-      {/* Add Table Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md">

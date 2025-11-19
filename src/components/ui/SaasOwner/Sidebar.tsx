@@ -36,9 +36,9 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
           <div className="flex items-center space-x-3">
             <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-linear-to-r from-blue-500 to-purple-600">
-              <span className="text-sm font-bold text-white">S</span>
+              <span className="text-sm font-bold text-white">D</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">SaaSKit</span>
+            <span className="text-xl font-bold text-gray-900">DineSaas</span>
           </div>
         </div>
 

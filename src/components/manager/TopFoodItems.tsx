@@ -1,4 +1,3 @@
-// src/components/manager/TopFoodItems.tsx
 import { TopFoodItem } from '../../types/manager';
 
 interface TopFoodItemsProps {
@@ -27,7 +26,9 @@ export const TopFoodItems = ({ items }: TopFoodItemsProps) => {
                 <p className="text-sm text-gray-600">{item.category}</p>
                 <div className="flex items-center space-x-4 mt-1">
                   <span className="text-sm text-gray-500">{item.sales} sold</span>
-                  <span className="text-sm font-medium text-green-600">${item.revenue.toLocaleString()}</span>
+                  <span className="text-sm font-medium text-green-600">
+                    ${item.revenue.toLocaleString()}
+                  </span>
                 </div>
               </div>
             </div>

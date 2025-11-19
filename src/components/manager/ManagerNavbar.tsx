@@ -1,6 +1,4 @@
-// src/components/manager/ManagerNavbar.tsx
 'use client';
-
 import { useState } from 'react';
 
 export const ManagerNavbar = () => {
@@ -11,7 +9,7 @@ export const ManagerNavbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <span className="text-2xl font-bold text-gray-800">DINERAL</span>
+            <span className="text-2xl font-bold text-gray-800">DineFlow</span>
             <span className="ml-2 px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full font-medium">
               Manager Dashboard
             </span>
@@ -21,7 +19,7 @@ export const ManagerNavbar = () => {
             <a href="#overview" className="text-gray-600 hover:text-green-600 transition-colors font-medium">Overview</a>
             <a href="#menu" className="text-gray-600 hover:text-green-600 transition-colors font-medium">Menu</a>
             <a href="#tables" className="text-gray-600 hover:text-green-600 transition-colors font-medium">Tables</a>
-            <a href="#analytics" className="text-gray-600 hover:text-green-600 transition-colors font-medium">Analytics</a>
+            <a href="#users" className="text-gray-600 hover:text-green-600 transition-colors font-medium">Users</a>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -43,16 +41,10 @@ export const ManagerNavbar = () => {
               
               {isProfileOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1">
-                  <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors">
-                    Profile Settings
-                  </a>
-                  <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors">
-                    Restaurant Settings
-                  </a>
+                  <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors">Profile Settings</a>
+                  <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors">Restaurant Settings</a>
                   <div className="border-t border-gray-200 my-1"></div>
-                  <a href="/login" className="block px-4 py-2 text-red-600 hover:bg-gray-100 transition-colors">
-                    Logout
-                  </a>
+                  <a href="/login" className="block px-4 py-2 text-red-600 hover:bg-gray-100 transition-colors">Logout</a>
                 </div>
               )}
             </div>

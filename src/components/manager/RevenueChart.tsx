@@ -1,8 +1,26 @@
-// src/components/manager/RevenueChart.tsx
-'use client';
 
+'use client';
 import { RevenueData } from '../../types/manager';
 import { useState } from 'react';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface RevenueChartProps {
   data: RevenueData[];
@@ -11,8 +29,44 @@ interface RevenueChartProps {
 export const RevenueChart = ({ data }: RevenueChartProps) => {
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('week');
 
-  const maxRevenue = Math.max(...data.map(d => d.revenue));
-  
+  const chartData = {
+    labels: data.map(item => item.date),
+    datasets: [
+      {
+        label: 'Revenue ($)',
+        data: data.map(item => item.revenue),
+        backgroundColor: 'rgba(34, 197, 94, 0.8)',
+        borderColor: 'rgba(34, 197, 94, 1)',
+        borderWidth: 1,
+      },
+      {
+        label: 'Orders',
+        data: data.map(item => item.orders),
+        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+        borderColor: 'rgba(59, 130, 246, 1)',
+        borderWidth: 1,
+      }
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: 'Revenue & Orders Overview',
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-8">
       <div className="flex justify-between items-center mb-6">
@@ -35,42 +89,26 @@ export const RevenueChart = ({ data }: RevenueChartProps) => {
       </div>
 
       <div className="h-64">
-        <div className="flex items-end justify-between h-48 space-x-2">
-          {data.map((item, index) => {
-            const height = (item.revenue / maxRevenue) * 100;
-            return (
-              <div key={index} className="flex flex-col items-center flex-1">
-                <div className="flex flex-col items-center">
-                  <div
-                    className="w-full bg-gradient-to-t from-green-500 to-green-400 rounded-t-lg transition-all duration-300 hover:from-green-600 hover:to-green-500 cursor-pointer"
-                    style={{ height: `${Math.max(height, 8)}%` }}
-                  ></div>
-                  <div className="w-full h-2 bg-green-200 rounded-b-lg"></div>
-                </div>
-                <div className="mt-2 text-xs text-gray-500 font-medium">
-                  {item.date}
-                </div>
-                <div className="mt-1 text-sm font-semibold text-gray-900">
-                  ${item.revenue}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <Bar data={chartData} options={options} />
       </div>
 
       <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-200">
         <div className="text-center">
-          <div className="text-2xl font-bold text-gray-900">${data.reduce((sum, day) => sum + day.revenue, 0).toLocaleString()}</div>
+          <div className="text-2xl font-bold text-gray-900">
+            ${data.reduce((sum, day) => sum + day.revenue, 0).toLocaleString()}
+          </div>
           <div className="text-sm text-gray-600">Total Revenue</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold text-gray-900">{data.reduce((sum, day) => sum + day.orders, 0)}</div>
+          <div className="text-2xl font-bold text-gray-900">
+            {data.reduce((sum, day) => sum + day.orders, 0)}
+          </div>
           <div className="text-sm text-gray-600">Total Orders</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-gray-900">
-            ${(data.reduce((sum, day) => sum + day.revenue, 0) / data.reduce((sum, day) => sum + day.orders, 1)).toFixed(2)}
+            ${(data.reduce((sum, day) => sum + day.revenue, 0) / 
+               data.reduce((sum, day) => sum + day.orders, 1)).toFixed(2)}
           </div>
           <div className="text-sm text-gray-600">Avg. Order Value</div>
         </div>
