@@ -12,7 +12,7 @@ export default function UserModal({ user, onClose, onToggleStatus, onDeleteUser 
   if (!user) return null;
 
   const deleteUser = (userId: string) => {
-    if (confirm('Are you sure you want to delete this user?')) {
+    if (showConfirmDialog('Are you sure you want to delete this user?')) {
       onDeleteUser(userId);
       onClose();
     }

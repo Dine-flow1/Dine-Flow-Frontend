@@ -23,7 +23,7 @@ export default function TableBookingForm({ restaurant }: TableBookingFormProps) 
     e.preventDefault();
     // Handle table booking logic here
     console.log("Table booking submitted:", formData);
-    alert("Table booked successfully!");
+    showAlert("Table booked successfully!");
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

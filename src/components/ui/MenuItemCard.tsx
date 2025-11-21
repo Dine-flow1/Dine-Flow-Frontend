@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { MenuItem } from "@/src/types/restruant";
+import { 
+  showSuccessAlert, 
+  showInfoAlert, 
+  showSuccessToast 
+} from "../../utils/sweetAlert";
 
 interface MenuItemCardProps {
   item: MenuItem;
@@ -9,11 +15,27 @@ interface MenuItemCardProps {
 
 export default function MenuItemCard({ item }: MenuItemCardProps) {
   const [quantity, setQuantity] = useState(1);
+  const router = useRouter();
   const category = (item as any).category || "Main Course"; // Safe fallback
 
   const handleAddToCart = () => {
     console.log(`Added ${quantity} ${item.name} to cart`);
-    alert(`Added ${quantity} ${item.name} to cart!`);
+    showSuccessToast(`Added ${quantity} ${item.name} to cart! 🛒`);
+  };
+
+  const handleOrderNow = () => {
+    console.log(`Ordering ${quantity} ${item.name} - Proceeding to payment`);
+    
+    // Show confirmation before redirecting
+    showInfoAlert(
+      `You're ordering ${quantity} ${item.name}. You'll be redirected to checkout to complete your order.`,
+      'Order Confirmation'
+    ).then((result) => {
+      if (result.isConfirmed) {
+        // Redirect to checkout with item details
+        router.push(`/checkout?item=${item.id}&quantity=${quantity}`);
+      }
+    });
   };
 
   return (
@@ -43,29 +65,39 @@ export default function MenuItemCard({ item }: MenuItemCardProps) {
           </span>
         </div>
 
-        {/* Quantity Selector and Add to Cart */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+        {/* Quantity Selector */}
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-sm font-medium text-gray-700">Quantity</span>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="w-8 h-8 text-gray-600 border border-gray-300 rounded-full hover:bg-gray-100"
+              className="w-8 h-8 text-gray-600 border border-gray-300 rounded-full hover:bg-gray-100 transition-colors duration-200"
             >
               -
             </button>
             <span className="w-8 font-semibold text-center">{quantity}</span>
             <button
               onClick={() => setQuantity(quantity + 1)}
-              className="w-8 h-8 text-gray-600 border border-gray-300 rounded-full hover:bg-gray-100"
+              className="w-8 h-8 text-gray-600 border border-gray-300 rounded-full hover:bg-gray-100 transition-colors duration-200"
             >
               +
             </button>
           </div>
+        </div>
 
+        {/* Buttons */}
+        <div className="flex gap-3 pt-4 border-t border-gray-100">
           <button
             onClick={handleAddToCart}
-            className="px-6 py-2 font-semibold text-white transition-colors duration-200 bg-yellow-500 rounded-lg hover:bg-yellow-600"
+            className="flex-1 px-4 py-3 font-semibold text-gray-700 transition-colors duration-200 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 hover:border-gray-400"
           >
-            Add to Cart
+            🛒 Add to Cart
+          </button>
+          <button
+            onClick={handleOrderNow}
+            className="flex-1 px-4 py-3 font-semibold text-white transition-colors duration-200 bg-yellow-500 rounded-lg hover:bg-yellow-600 hover:shadow-lg"
+          >
+            🚀 Order Now
           </button>
         </div>
       </div>

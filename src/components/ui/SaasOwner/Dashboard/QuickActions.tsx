@@ -22,7 +22,7 @@ const QuickActions = () => {
       description: 'Create new user account',
       icon: '👥',
       color: 'from-blue-500 to-blue-600',
-      action: () => alert('Add User clicked')
+      action: () => showAlert('Add User clicked')
     },
     {
       id: '2',
@@ -30,7 +30,7 @@ const QuickActions = () => {
       description: 'Create analytics report',
       icon: '📊',
       color: 'from-green-500 to-green-600',
-      action: () => alert('Generate Report clicked')
+      action: () => showAlert('Generate Report clicked')
     },
     {
       id: '3',
@@ -38,7 +38,7 @@ const QuickActions = () => {
       description: 'Notify all users',
       icon: '🔔',
       color: 'from-purple-500 to-purple-600',
-      action: () => alert('Send Notification clicked'),
+      action: () => showAlert('Send Notification clicked'),
       badge: 'New'
     },
     {
@@ -47,7 +47,7 @@ const QuickActions = () => {
       description: 'Configure system preferences',
       icon: '⚙️',
       color: 'from-gray-500 to-gray-600',
-      action: () => alert('System Settings clicked')
+      action: () => showAlert('System Settings clicked')
     },
     {
       id: '5',
@@ -55,7 +55,7 @@ const QuickActions = () => {
       description: 'Manage subscriptions & payments',
       icon: '💳',
       color: 'from-amber-500 to-amber-600',
-      action: () => alert('Billing clicked')
+      action: () => showAlert('Billing clicked')
     },
     {
       id: '6',
@@ -63,7 +63,7 @@ const QuickActions = () => {
       description: 'Manage integration keys',
       icon: '🔑',
       color: 'from-red-500 to-red-600',
-      action: () => alert('API Keys clicked')
+      action: () => showAlert('API Keys clicked')
     }
   ];
 

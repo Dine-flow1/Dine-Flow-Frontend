@@ -1,17 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
-import OrderCard from '../../components/order/OrderCard';
-
-// Define the interface locally
-interface OrderSummary {
-  id: string;
-  orderNumber: string;
-  status: string;
-  total: number;
-  itemCount: number;
-  orderTime: string;
-  deliveryAddress: string;
-}
+import { OrderSummary } from '../../types/order';
+import OrderCard from './OrderCard';
 
 const OrdersList = () => {
   const [orders, setOrders] = useState<OrderSummary[]>([]);
@@ -26,7 +16,8 @@ const OrdersList = () => {
       total: 82.27,
       itemCount: 4,
       orderTime: '2024-01-15T14:30:00Z',
-      deliveryAddress: 'Grand Plaza Hotel, Room 405'
+      deliveryAddress: 'Grand Plaza Hotel, Room 405',
+      restaurantName: 'Italian Bistro'
     },
     {
       id: '2',
@@ -35,7 +26,8 @@ const OrdersList = () => {
       total: 45.50,
       itemCount: 2,
       orderTime: '2024-01-15T15:00:00Z',
-      deliveryAddress: 'Business Tower, Suite 1200'
+      deliveryAddress: 'Business Tower, Suite 1200',
+      restaurantName: 'Burger Kingdom'
     },
     {
       id: '3',
@@ -44,7 +36,8 @@ const OrdersList = () => {
       total: 67.89,
       itemCount: 3,
       orderTime: '2024-01-15T15:30:00Z',
-      deliveryAddress: 'Luxury Suites, Room 301'
+      deliveryAddress: 'Luxury Suites, Room 301',
+      restaurantName: 'Tokyo Sushi'
     },
     {
       id: '4',
@@ -53,13 +46,17 @@ const OrdersList = () => {
       total: 32.99,
       itemCount: 1,
       orderTime: '2024-01-14T10:00:00Z',
-      deliveryAddress: 'City Center Hotel, Room 205'
+      deliveryAddress: 'City Center Hotel, Room 205',
+      restaurantName: 'Pizza Palace'
     }
   ];
 
   useEffect(() => {
     setTimeout(() => {
-      setOrders(sampleOrders);
+      const sortedOrders = [...sampleOrders].sort((a, b) => 
+        new Date(b.orderTime).getTime() - new Date(a.orderTime).getTime()
+      );
+      setOrders(sortedOrders);
       setLoading(false);
     }, 1000);
   }, []);
@@ -67,6 +64,11 @@ const OrdersList = () => {
   const filteredOrders = filter === 'all' 
     ? orders 
     : orders.filter(order => order.status === filter);
+
+  const handleViewDetails = (orderId: string) => {
+    // Navigate to order details page
+    window.location.href = `/order/${orderId}`;
+  };
 
   if (loading) {
     return (
@@ -80,13 +82,15 @@ const OrdersList = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto ">
-      <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm border border-gray-200 mb-6 ">
+    <div className="max-w-6xl mx-auto">
+      {/* Filter Tabs */}
+      <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm border border-gray-200 mb-6">
         {[
           { key: 'all', label: 'All Orders' },
           { key: 'on-the-way', label: 'On the Way' },
           { key: 'preparing', label: 'Preparing' },
-          { key: 'delivered', label: 'Delivered' }
+          { key: 'delivered', label: 'Delivered' },
+          { key: 'cancelled', label: 'Cancelled' }
         ].map((tab) => (
           <button
             key={tab.key}
@@ -102,12 +106,19 @@ const OrdersList = () => {
         ))}
       </div>
 
+      {/* Orders List */}
       <div className="space-y-4">
         {filteredOrders.map((order) => (
-          <OrderCard key={order.id} order={order} />
+          <OrderCard 
+            key={order.id} 
+            order={order} 
+            onViewDetails={handleViewDetails}
+            showActions={true}
+          />
         ))}
       </div>
 
+      {/* Empty State */}
       {filteredOrders.length === 0 && (
         <div className="text-center py-12">
           <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">

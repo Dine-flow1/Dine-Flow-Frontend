@@ -20,7 +20,7 @@ export default function UsersTable({ users, onViewUser, onToggleStatus, onDelete
   };
 
   const deleteUser = (userId: string) => {
-    if (confirm('Are you sure you want to delete this user?')) {
+    if (showConfirmDialog('Are you sure you want to delete this user?')) {
       onDeleteUser(userId);
     }
   };

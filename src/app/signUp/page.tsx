@@ -83,12 +83,12 @@ const Signup = () => {
       ease: "power2.out"
     });
     
-    alert("OTP sent to your phone (demo)");
+    showAlert("OTP sent to your phone (demo)");
   };
 
   const handleVerifyOtp = () => {
     setIsVerified(true);
-    alert("✅ OTP Verified!");
+    showAlert("✅ OTP Verified!");
     
     gsap.to(".success-indicator", {
       scale: 1.2,
@@ -100,7 +100,7 @@ const Signup = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isVerified) return alert("Please verify OTP first");
+    if (!isVerified) return showAlert("Please verify OTP first");
     
     gsap.to(formRef.current, {
       scale: 1.02,
@@ -108,7 +108,7 @@ const Signup = () => {
       yoyo: true,
       repeat: 1,
       onComplete: () => {
-        alert("🎉 Signup Completed!");
+        showAlert("🎉 Signup Completed!");
       }
     });
   };
@@ -171,13 +171,13 @@ const Signup = () => {
                   placeholder="Create password"
                 />
                 <InputField
-                  label="Confirm Password"
+                  label="showConfirmDialog Password"
                   type="password"
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   error={errors.confirmPassword}
-                  placeholder="Confirm your password"
+                  placeholder="showConfirmDialog your password"
                 />
               </div>
             </FadeInAnimation>
