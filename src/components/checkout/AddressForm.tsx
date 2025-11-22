@@ -77,7 +77,7 @@ const AddressForm = ({ address, onSubmit }: AddressFormProps) => {
         {/* Hotel/Property Name */}
         <div>
           <label htmlFor="hotel" className="block text-sm font-medium text-gray-700 mb-2">
-            Hotel / Property Name *
+            Hotel / Property Name 
           </label>
           <input
             type="text"
