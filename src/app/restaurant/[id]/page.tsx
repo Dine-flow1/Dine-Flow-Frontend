@@ -46,7 +46,7 @@ export default function RestaurantDetail({ params }: { params: Promise<{ id: str
         <div className="min-h-screen py-10 bg-linear-to-br from-yellow-50 to-amber-50">
           <div className="max-w-6xl px-6 mx-auto text-center">
             <LoadingSpinner />
-            <p className="mt-4 text-lg text-gray-600">Loading restaurant details...</p>
+            <p className="mt-4 text-lg text-gray-600">Loading restaurant details.......</p>
           </div>
         </div>
       </>
