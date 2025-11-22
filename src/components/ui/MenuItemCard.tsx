@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { MenuItem } from "@/src/types/restruant";
+import { MenuItem } from "@/src/types/restaurant";
 import { 
   showSuccessAlert, 
   showInfoAlert, 

@@ -3,10 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "concurrently \"npm run json-server\" \"next dev --turbopack\"",
+    "dev:frontend": "next dev --turbopack",
+    "dev:backend": "npm run json-server",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "json-server": "json-server --watch db.json --port 3001 --host localhost",
+    "dev:full": "concurrently \"npm run json-server\" \"next dev --turbopack\""
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",
@@ -14,8 +18,10 @@
     "axios": "^1.12.2",
     "chart.js": "^4.5.1",
     "clsx": "^2.1.1",
+    "concurrently": "^8.2.2",
     "framer-motion": "^12.23.24",
     "gsap": "^3.13.0",
+    "json-server": "^0.17.4",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "next": "15.5.5",

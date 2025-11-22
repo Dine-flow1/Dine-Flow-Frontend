@@ -3,7 +3,7 @@ import { OwnerInfoSection } from './OwnerInfoSection';
 import { BusinessRegistrationSection } from './BussinessRegistrationSection';
 // import { ImageUploadSection } from './ImageUploadSection';
 import  SubmitButton  from '../form/SubmitButton';
-import { RestaurantData } from '../../types/restruant';
+import { RestaurantData } from '../../types/restaurant';
 
 interface RegistrationFormProps {
   formData: RestaurantData;
@@ -39,13 +39,7 @@ export const RegistrationForm = ({
       <BusinessRegistrationSection 
         formData={formData} 
         onChange={onRestaurantChange} 
-      />
-      
-      {/* <ImageUploadSection 
-        onLogoChange={onLogoChange}
-        onBannerChange={onBannerChange}
-      /> */}
-      
+      />  
       <div className="mt-8">
         <SubmitButton loading={loading}>
           Register Restaurant

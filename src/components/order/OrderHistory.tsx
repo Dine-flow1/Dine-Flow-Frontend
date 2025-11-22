@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { OrderSummary, OrderHistoryStats } from '../../types/order';
-import OrderCard from './OrderCard';
+import OrderCard from '../order/Ordercard';
 
 interface OrderHistoryProps {
   userId?: string;

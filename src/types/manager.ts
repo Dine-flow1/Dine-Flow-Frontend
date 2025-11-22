@@ -45,6 +45,7 @@ export interface User {
   totalSpent: number;
   avatar: string;
   role: 'customer' | 'vip' | 'premium';
+  createdAt: string; // Fixed: removed | number | Date, keep only string
 }
 
 export interface DashboardStats {

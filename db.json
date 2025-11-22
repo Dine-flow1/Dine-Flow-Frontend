@@ -1,0 +1,216 @@
+{
+  "users": [
+    {
+      "_id": "user_1",
+      "fullName": "John Doe",
+      "email": "john@example.com",
+      "password": "",
+      "googleId": null,
+      "role": "customer",
+      "contact": "9876543210",
+      "profileImage": "",
+      "address": {
+        "street": "",
+        "city": "",
+        "state": "",
+        "zip": "",
+        "location": {
+          "type": "Point",
+          "coordinates": [0, 0]
+        }
+      },
+      "isAccountVerified": false,
+      "verifyOtp": null,
+      "verifyOtpExpireAt": null,
+      "resetOtp": null,
+      "resetOtpExpireAt": null
+    }
+  ],
+
+  "restaurants": [
+    {
+      "_id": "rest_1",
+      "restaurantName": "Food Plaza",
+      "restaurantType": "Indian",
+      "description": "Amazing Indian food",
+      "logo": "",
+      "bannerImage": "",
+      "website": "https://foodplaza.com",
+      "contactEmail": "contact@foodplaza.com",
+      "contactPhone": "9876543210",
+      "otp": null,
+      "otpExpires": null,
+      "isVerified": false,
+      "ownerId": "user_owner",
+      "panNumber": "",
+      "gstinNumber": "",
+      "fssaiNumber": "",
+      "registrationNumber": "",
+      "branches": [
+        {
+          "_id": "branch_1",
+          "branchName": "Main Branch",
+          "address": "MG Road, Bangalore",
+          "geoLocation": {
+            "type": "Point",
+            "coordinates": [77.5946, 12.9716]
+          },
+          "contactPhone": "9876543210",
+          "openingHours": {
+            "mon": "9AM–10PM",
+            "tue": "9AM–10PM",
+            "wed": "9AM–10PM",
+            "thu": "9AM–10PM",
+            "fri": "9AM–10PM",
+            "sat": "9AM–11PM",
+            "sun": "9AM–11PM"
+          }
+        }
+      ],
+      "status": "pending_verification",
+      "isApproved": false,
+      "approvalStatus": "pending",
+      "approvedBy": null,
+      "approvedAt": null,
+      "createdAt": "2025-01-01T00:00:00Z"
+    }
+  ],
+
+  "subscriptions": [
+    {
+      "_id": "sub_1",
+      "restaurantId": "rest_1",
+      "subscriptionPlan": "1_year",
+      "status": "active",
+      "startDate": "2025-01-01T00:00:00Z",
+      "endDate": "2026-01-01T00:00:00Z",
+      "amount": 9999,
+      "paymentId": "razor_123",
+      "createdAt": "2025-01-01T00:00:00Z"
+    }
+  ],
+
+  "menuCategories": [
+    {
+      "_id": "cat_1",
+      "restaurantId": "rest_1",
+      "name": "Biryani",
+      "description": "",
+      "isActive": true,
+      "sortOrder": 0,
+      "image": null
+    }
+  ],
+
+  "menuItems": [
+    {
+      "_id": "item_1",
+      "restaurantId": "rest_1",
+      "categoryId": "cat_1",
+      "name": "Chicken Biryani",
+      "description": "Spicy biryani",
+      "price": 220,
+      "image": "",
+      "isAvailable": true,
+      "isVeg": false,
+      "spiceLevel": "Medium",
+      "discount": 0,
+      "rating": 4.5,
+      "tags": ["biryani", "nonveg"]
+    }
+  ],
+
+  "orders": [
+    {
+      "_id": "order_1",
+      "customer": {
+        "customerId": "user_1",
+        "name": "John",
+        "phone": "9876543210"
+      },
+      "restaurant": {
+        "restaurantId": "rest_1",
+        "name": "Food Plaza",
+        "address": "MG Road"
+      },
+      "items": [
+        {
+          "itemId": "item_1",
+          "name": "Chicken Biryani",
+          "quantity": 2,
+          "unitPrice": 220,
+          "totalPrice": 440
+        }
+      ],
+      "orderSummary": {
+        "orderType": "delivery",
+        "totalAmount": 440,
+        "paymentMethod": "Online",
+        "notes": ""
+      },
+      "deliveryDetails": {
+        "address": "Home address",
+        "instructions": "",
+        "phone": "9876543210",
+        "assignedDeliveryPerson": {
+          "id": null,
+          "name": null,
+          "phone": null
+        },
+        "estimatedDeliveryTime": null
+      },
+      "orderStatus": {
+        "placed": "2025-01-01T00:00:00Z",
+        "confirmed": null,
+        "preparing": null,
+        "readyForDelivery": null,
+        "outForDelivery": null,
+        "delivered": null,
+        "canceled": null
+      }
+    }
+  ],
+
+  "payments": [
+    {
+      "_id": "pay_1",
+      "orderId": "order_1",
+      "restaurantId": "rest_1",
+      "userId": "user_1",
+      "amount": 440,
+      "currency": "INR",
+      "paymentMethod": "UPI",
+      "paymentStatus": "completed",
+      "transactionId": "txn_123",
+      "paymentGatewayResponse": {},
+      "createdAt": "2025-01-01T00:00:00Z"
+    }
+  ],
+
+  "tableBookings": [
+    {
+      "_id": "tbl_1",
+      "restaurantId": "rest_1",
+      "tableNumber": 12,
+      "seats": 4,
+      "isPremium": false,
+      "priceMultiplier": 1,
+      "status": "available",
+      "bookings": [
+        {
+          "_id": "bk_1",
+          "customerId": "user_1",
+          "type": "specific",
+          "date": "2025-01-20",
+          "time": "7:00 PM",
+          "totalAmount": 500,
+          "token": "TBL123",
+          "status": "pending",
+          "paymentStatus": "unpaid",
+          "cancellationReason": null
+        }
+      ],
+      "createdAt": "2025-01-01T00:00:00Z"
+    }
+  ]
+}

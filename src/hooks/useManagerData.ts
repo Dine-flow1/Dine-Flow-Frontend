@@ -1,106 +1,171 @@
-// src/hooks/useManagerData.ts
 import { useState, useEffect } from 'react';
 import { DashboardStats, RevenueData, TopFoodItem, FoodItem, Table, User } from '../types/manager';
+import { apiService } from '../lib/apiService';
+import { MenuItem } from '../types/restaurant';
 
-export const useManagerData = () => {
+
+// Conversion functions
+const convertMenuItemToFoodItem = (menuItem: MenuItem): FoodItem => ({
+  id: menuItem.id, // Use id instead of _id
+  name: menuItem.name,
+  description: menuItem.description,
+  price: menuItem.price,
+  category: menuItem.category || 'Uncategorized',
+  image: menuItem.image,
+  isAvailable: menuItem.isAvailable,
+  preparationTime: 15,
+  ingredients: []
+});
+
+const convertTableBookingToTable = (tableBooking: any): Table => ({
+  id: tableBooking._id,
+  number: tableBooking.tableNumber,
+  capacity: tableBooking.seats,
+  status: tableBooking.status === 'available' ? 'available' : 
+          tableBooking.status === 'booked' ? 'occupied' : 'reserved',
+  currentOrder: tableBooking.bookings.find((b: any) => b.status === 'confirmed')?.token || undefined
+});
+
+export const useManagerData = (restaurantId?: string) => {
   const [stats, setStats] = useState<DashboardStats>({
-    totalRevenue: 125000,
-    monthlyRevenue: 28400,
-    dailyRevenue: 1248,
-    totalOrders: 1250,
-    activeOrders: 12,
-    availableTables: 8,
-    totalUsers: 156,
-    activeUsers: 142,
-    blockedUsers: 14
+    totalRevenue: 0,
+    monthlyRevenue: 0,
+    dailyRevenue: 0,
+    totalOrders: 0,
+    activeOrders: 0,
+    availableTables: 0,
+    totalUsers: 0,
+    activeUsers: 0,
+    blockedUsers: 0
   });
 
-  const [revenueData] = useState<RevenueData[]>([
-    { date: 'Mon', revenue: 1200, orders: 24 },
-    { date: 'Tue', revenue: 1800, orders: 32 },
-    { date: 'Wed', revenue: 1500, orders: 28 },
-    { date: 'Thu', revenue: 2200, orders: 38 },
-    { date: 'Fri', revenue: 2800, orders: 45 },
-    { date: 'Sat', revenue: 3200, orders: 52 },
-    { date: 'Sun', revenue: 2500, orders: 41 }
-  ]);
-
-  const [topFoodItems] = useState<TopFoodItem[]>([
-    { id: '1', name: 'Margherita Pizza', sales: 156, revenue: 3120, image: '🍕', category: 'Pizza' },
-    { id: '2', name: 'Caesar Salad', sales: 142, revenue: 2840, image: '🥗', category: 'Salads' },
-    { id: '3', name: 'Beef Burger', sales: 138, revenue: 4140, image: '🍔', category: 'Burgers' },
-    { id: '4', name: 'Pasta Carbonara', sales: 125, revenue: 3750, image: '🍝', category: 'Pasta' },
-    { id: '5', name: 'Chocolate Cake', sales: 118, revenue: 1770, image: '🍰', category: 'Desserts' }
-  ]);
-
+  const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
+  const [topFoodItems, setTopFoodItems] = useState<TopFoodItem[]>([]);
   const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
   const [tables, setTables] = useState<Table[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [restaurant, setRestaurant] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Fetch all manager data
   useEffect(() => {
-    // Initialize sample data
-    setFoodItems([
-      {
-        id: '1',
-        name: 'Margherita Pizza',
-        description: 'Classic pizza with tomato sauce, mozzarella, and fresh basil',
-        price: 20,
-        category: 'Pizza',
-        image: '🍕',
-        isAvailable: true,
-        preparationTime: 15,
-        ingredients: ['Tomato sauce', 'Mozzarella', 'Fresh basil', 'Olive oil']
-      },
-      {
-        id: '2',
-        name: 'Caesar Salad',
-        description: 'Fresh romaine lettuce with Caesar dressing, croutons, and parmesan',
-        price: 20,
-        category: 'Salads',
-        image: '🥗',
-        isAvailable: true,
-        preparationTime: 10,
-        ingredients: ['Romaine lettuce', 'Caesar dressing', 'Croutons', 'Parmesan']
-      }
-    ]);
+    const fetchManagerData = async () => {
+      if (!restaurantId) return;
 
-    setTables([
-      { id: '1', number: 1, capacity: 4, status: 'available' },
-      { id: '2', number: 2, capacity: 2, status: 'occupied', currentOrder: 'ORD-001' },
-      { id: '3', number: 3, capacity: 6, status: 'reserved' },
-      { id: '4', number: 4, capacity: 4, status: 'available' },
-      { id: '5', number: 5, capacity: 8, status: 'occupied', currentOrder: 'ORD-002' }
-    ]);
+      try {
+        setLoading(true);
+        setError(null);
 
-    setUsers([
-      {
-        id: '1',
-        name: 'John Smith',
-        email: 'john.smith@email.com',
-        phone: '+1 (555) 123-4567',
-        joinDate: '2024-01-15',
-        lastLogin: '2024-03-20',
-        status: 'active',
-        totalOrders: 25,
-        totalSpent: 1250,
-        avatar: 'JS',
-        role: 'vip'
-      },
-      {
-        id: '2',
-        name: 'Sarah Johnson',
-        email: 'sarah.j@email.com',
-        phone: '+1 (555) 987-6543',
-        joinDate: '2024-02-10',
-        lastLogin: '2024-03-19',
-        status: 'active',
-        totalOrders: 18,
-        totalSpent: 890,
-        avatar: 'SJ',
-        role: 'premium'
+        // Fetch all data in parallel
+        const [restaurantData, menuItemsData, ordersData, tableBookings, usersData] = await Promise.all([
+          apiService.getRestaurant(restaurantId),
+          apiService.getMenuItems(restaurantId),
+          apiService.getOrders(undefined, restaurantId),
+          apiService.getTableBookings(restaurantId),
+          apiService.getUsers()
+        ]);
+
+        setRestaurant(restaurantData);
+        setFoodItems(menuItemsData.map(convertMenuItemToFoodItem));
+        setOrders(ordersData);
+        setTables(tableBookings.map(convertTableBookingToTable));
+        setUsers(usersData.map((user: any) => ({
+          id: user._id,
+          name: user.fullName,
+          email: user.email,
+          phone: user.contact,
+          joinDate: new Date().toISOString().split('T')[0],
+          lastLogin: new Date().toISOString(),
+          status: 'active' as const,
+          totalOrders: 0,
+          totalSpent: 0,
+          avatar: user.fullName.split(' ').map((n: string) => n[0]).join(''),
+          role: 'customer' as const,
+          createdAt: new Date().toISOString(),
+        })));
+
+        // Calculate stats
+        const totalOrders = ordersData.length;
+        const activeOrders = ordersData.filter((order: any) => 
+          !order.orderStatus.delivered && !order.orderStatus.canceled
+        ).length;
+        
+        const availableTables = tableBookings.filter((tb: any) => tb.status === 'available').length;
+        
+        // Calculate revenue from completed orders
+        const completedOrders = ordersData.filter((order: any) => order.orderStatus.delivered);
+        const totalRevenue = completedOrders.reduce((sum: number, order: any) => 
+          sum + order.orderSummary.totalAmount, 0
+        );
+
+        // Calculate user stats
+        const activeUsers = usersData.filter((user: any) => !user.isBlocked).length;
+        const blockedUsers = usersData.filter((user: any) => user.isBlocked).length;
+
+        setStats({
+          totalRevenue,
+          monthlyRevenue: totalRevenue * 0.8,
+          dailyRevenue: totalRevenue * 0.05,
+          totalOrders,
+          activeOrders,
+          availableTables,
+          totalUsers: usersData.length,
+          activeUsers,
+          blockedUsers
+        });
+
+        // Generate revenue data
+        setRevenueData([
+          { date: 'Mon', revenue: 1200, orders: 24 },
+          { date: 'Tue', revenue: 1800, orders: 32 },
+          { date: 'Wed', revenue: 1500, orders: 28 },
+          { date: 'Thu', revenue: 2200, orders: 38 },
+          { date: 'Fri', revenue: 2800, orders: 45 },
+          { date: 'Sat', revenue: 3200, orders: 52 },
+          { date: 'Sun', revenue: 2500, orders: 41 }
+        ]);
+
+        // Calculate top food items
+        const itemSales: Record<string, { sales: number, revenue: number }> = {};
+        ordersData.forEach((order: any) => {
+          order.items.forEach((item: any) => {
+            if (!itemSales[item.itemId]) {
+              itemSales[item.itemId] = { sales: 0, revenue: 0 };
+            }
+            itemSales[item.itemId].sales += item.quantity;
+            itemSales[item.itemId].revenue += item.totalPrice;
+          });
+        });
+
+        const topItems = Object.entries(itemSales)
+          .map(([itemId, data]) => {
+            const menuItem = menuItemsData.find((mi: any) => mi._id === itemId);
+            return {
+              id: itemId,
+              name: menuItem?.name || 'Unknown Item',
+              sales: data.sales,
+              revenue: data.revenue,
+              image: menuItem?.image || '🍕',
+              category: menuItem?.category || 'Unknown'
+            };
+          })
+          .sort((a, b) => b.sales - a.sales)
+          .slice(0, 5);
+
+        setTopFoodItems(topItems);
+
+      } catch (err) {
+        console.error('Error fetching manager data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch data');
+      } finally {
+        setLoading(false);
       }
-    ]);
-  }, []);
+    };
+
+    fetchManagerData();
+  }, [restaurantId]);
 
   // User Management Handlers
   const handleBlockUser = (userId: string) => {
@@ -144,31 +209,90 @@ export const useManagerData = () => {
   };
 
   // Menu Management Handlers
-  const handleAddFoodItem = (newItem: Omit<FoodItem, 'id'>) => {
-    const item: FoodItem = { ...newItem, id: Date.now().toString() };
-    setFoodItems(prev => [...prev, item]);
+ const handleAddFoodItem = async (newItem: Omit<FoodItem, 'id'>) => {
+  if (!restaurantId) return;
+
+  try {
+    const menuItemData = {
+      restaurantId,
+      categoryId: 'cat_1',
+      name: newItem.name,
+      description: newItem.description,
+      price: newItem.price,
+      image: newItem.image,
+      isAvailable: newItem.isAvailable,
+      isVeg: true,
+      spiceLevel: 'Medium' as const, // Use type assertion to ensure it matches the expected type
+      discount: 0,
+      rating: 0,
+      tags: []
+    };
+
+    const createdItem = await apiService.createMenuItem(menuItemData);
+    const foodItem = convertMenuItemToFoodItem(createdItem);
+    setFoodItems(prev => [...prev, foodItem]);
+    return foodItem;
+  } catch (err) {
+    console.error('Failed to add food item:', err);
+    throw err;
+  }
+};
+
+  const handleEditFoodItem = async (id: string, updatedItem: Partial<FoodItem>) => {
+    try {
+      // For now, update locally - in real app, call API
+      setFoodItems(prev => prev.map(item => 
+        item.id === id ? { ...item, ...updatedItem } : item
+      ));
+    } catch (err) {
+      console.error('Failed to edit food item:', err);
+      throw err;
+    }
   };
 
-  const handleEditFoodItem = (id: string, updatedItem: Partial<FoodItem>) => {
-    setFoodItems(prev => prev.map(item => 
-      item.id === id ? { ...item, ...updatedItem } : item
-    ));
-  };
-
-  const handleDeleteFoodItem = (id: string) => {
-    setFoodItems(prev => prev.filter(item => item.id !== id));
+  const handleDeleteFoodItem = async (id: string) => {
+    try {
+      setFoodItems(prev => prev.filter(item => item.id !== id));
+    } catch (err) {
+      console.error('Failed to delete food item:', err);
+      throw err;
+    }
   };
 
   // Table Management Handlers
-  const handleAddTable = (newTable: Omit<Table, 'id'>) => {
-    const table: Table = { ...newTable, id: Date.now().toString() };
-    setTables(prev => [...prev, table]);
-    setStats(prev => ({ ...prev, availableTables: prev.availableTables + 1 }));
+  const handleAddTable = async (newTable: Omit<Table, 'id'>) => {
+    if (!restaurantId) return;
+
+    try {
+      const tableBookingData = {
+        restaurantId,
+        tableNumber: newTable.number,
+        seats: newTable.capacity,
+        isPremium: false,
+        priceMultiplier: 1,
+        status: 'available',
+        bookings: []
+      };
+
+      const createdTable = await apiService.createTableBooking(tableBookingData);
+      const table = convertTableBookingToTable(createdTable);
+      setTables(prev => [...prev, table]);
+      setStats(prev => ({ ...prev, availableTables: prev.availableTables + 1 }));
+      return table;
+    } catch (err) {
+      console.error('Failed to add table:', err);
+      throw err;
+    }
   };
 
-  const handleRemoveTable = (tableId: string) => {
-    setTables(prev => prev.filter(table => table.id !== tableId));
-    setStats(prev => ({ ...prev, availableTables: Math.max(0, prev.availableTables - 1) }));
+  const handleRemoveTable = async (tableId: string) => {
+    try {
+      setTables(prev => prev.filter(table => table.id !== tableId));
+      setStats(prev => ({ ...prev, availableTables: Math.max(0, prev.availableTables - 1) }));
+    } catch (err) {
+      console.error('Failed to remove table:', err);
+      throw err;
+    }
   };
 
   const handleAssignTable = (tableId: string, orderId: string) => {
@@ -181,25 +305,66 @@ export const useManagerData = () => {
     setTables(prev => prev.map(table => 
       table.id === tableId ? { ...table, status } : table
     ));
+    
+    const availableTables = tables.filter(table => table.status === 'available').length;
+    setStats(prev => ({ ...prev, availableTables }));
+  };
+
+  // Order Management Handlers
+  const handleUpdateOrderStatus = async (orderId: string, status: string) => {
+    try {
+      const updatedOrder = await apiService.updateOrderStatus(orderId, status);
+      setOrders(prev => prev.map(order => 
+        order._id === orderId ? updatedOrder : order
+      ));
+      
+      // Recalculate active orders
+      const activeOrders = orders.filter(order => 
+        !order.orderStatus.delivered && !order.orderStatus.canceled
+      ).length;
+      
+      setStats(prev => ({ ...prev, activeOrders }));
+      return updatedOrder;
+    } catch (err) {
+      console.error('Failed to update order status:', err);
+      throw err;
+    }
   };
 
   return {
+    // Data
     stats,
     revenueData,
     topFoodItems,
     foodItems,
     tables,
     users,
+    orders,
+    restaurant,
+    loading,
+    error,
+    
+    // User Management
     handleBlockUser,
     handleUnblockUser,
     handleDeleteUser,
     handleViewUserDetails,
+    
+    // Menu Management
     handleAddFoodItem,
     handleEditFoodItem,
     handleDeleteFoodItem,
+    
+    // Table Management
     handleAddTable,
     handleRemoveTable,
     handleAssignTable,
-    handleUpdateTableStatus
+    handleUpdateTableStatus,
+    
+    // Order Management
+    handleUpdateOrderStatus,
+    
+    // Refresh data
+    refetch: () => window.location.reload()
   };
 };

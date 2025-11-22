@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import SectionTitle from "../../components/form/SectionTitle";
 import { RegistrationForm } from "../../components/form/RegisterForm";
-import { RestaurantData, OwnerInfo } from '../../types/restruant';
+import { RestaurantData, OwnerInfo } from '../../types/restaurant';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState<RestaurantData>({

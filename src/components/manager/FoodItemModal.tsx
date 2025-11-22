@@ -41,17 +41,18 @@ export const FoodItemModal = ({
       ingredients: newItem.ingredients.filter((_, i) => i !== index)
     });
   };
-// In FoodItemModal.tsx - make sure this returns boolean
-const isFormValid = Boolean(
-  newItem.name && 
-  newItem.category && 
-  newItem.description && 
-  newItem.price > 0
-);
+
+  // In FoodItemModal.tsx - make sure this returns boolean
+  const isFormValid = Boolean(
+    newItem.name && 
+    newItem.category && 
+    newItem.description && 
+    newItem.price > 0
+  );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0  bg-opacity-30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white/90 backdrop-blur-md rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-white/20 shadow-2xl">
         <h3 className="text-xl font-bold text-gray-900 mb-6">
           {isEditing ? 'Edit Food Item' : 'Add New Food Item'}
         </h3>

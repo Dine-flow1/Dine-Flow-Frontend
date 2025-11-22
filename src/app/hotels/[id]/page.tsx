@@ -1,5 +1,6 @@
 import { restaurants } from "../../../data/restaurants";
 import MenuItemCard from "@/src/components/ui/MenuItemCard";
+import { MenuItem } from "../../../types/restaurant";
 
 export default function RestaurantDetail({ params }: { params: { id: string } }) {
   const restaurant = restaurants.find((r) => r.id === Number(params.id));
@@ -31,9 +32,26 @@ export default function RestaurantDetail({ params }: { params: { id: string } })
         <h3 className="mb-4 text-xl font-semibold text-gray-800">Menu</h3>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {restaurant.menu.map((item: { id: any; }) => (
-            <MenuItemCard key={item.id} item={item} />
-          ))}
+          {restaurant.menu.map((item, idx) => {
+            const menuItem: MenuItem = {
+              _id: typeof item.id === "string" ? item.id : item.id?.toString() ?? `${restaurant.id}-menu-${idx}`,
+              id: typeof item.id === "string" ? item.id : item.id?.toString() ?? `${restaurant.id}-menu-${idx}`,
+              restaurantId: restaurant.id?.toString() ?? "",
+              categoryId: "",
+              name: typeof item.name === "string" ? item.name : "",
+              price: typeof item.price === "number" ? item.price : 0,
+              image: typeof item.image === "string" ? item.image : "",
+              description: typeof item.description === "string" ? item.description : "",
+                category: 'category' in item ? item.category ?? "" : "",
+              isAvailable: true,
+              isVeg: false,
+              spiceLevel: "Mild",
+              discount: 0,
+              tags: [],
+              rating: 0,
+            };
+            return <MenuItemCard key={menuItem.id} item={menuItem} />;
+          })}
         </div>
       </div>
     </div>

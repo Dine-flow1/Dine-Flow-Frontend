@@ -1,6 +1,6 @@
 // components/RestaurantCard.tsx
 import Link from "next/link";
-import { RestaurantData } from "@/src/types/restruant";
+import { RestaurantData } from "@/src/types/restaurant";
 
 interface RestaurantCardProps {
   restaurant: RestaurantData;
@@ -8,7 +8,7 @@ interface RestaurantCardProps {
 
 export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
   // Safe access to properties with fallbacks
-  const restaurantName = restaurant.restaurantName || restaurant.name || "Restaurant";
+  const restaurantName = restaurant.restaurantName || "Restaurant";
   const restaurantImage = restaurant.image as string || "/api/placeholder/400/300";
   const restaurantType = restaurant.restaurantType || "Multi-cuisine";
   const restaurantAddress = restaurant.address || restaurant.location || "Location not specified";
@@ -77,10 +77,10 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
 
         {/* View Menu Button - Now on its own line and larger */}
         <Link 
-          href={`/restuarants/${restaurant.id}`}
+          href={`/restaurant/${restaurant._id ?? restaurant.id}`}
           className="flex items-center justify-center w-full py-3 text-base font-semibold text-white transition-colors duration-200 bg-yellow-500 rounded-lg hover:bg-yellow-600 hover:shadow-md"
         >
-          View Menu
+          View Menu 
         </Link>
       </div>
     </div>
