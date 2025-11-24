@@ -1,23 +1,24 @@
-// ✅ app/layout.tsx (server component — recommended)
-import type { Metadata } from 'next'
-import { Inter, Playfair_Display } from 'next/font/google'
+import type { Metadata, Viewport } from 'next'
+import { Inter } from 'next/font/google'
 import './globals.css'
-import ClientLayout from './client-layout'
 
-const inter = Inter({ 
-  subsets: ['latin'],
-  variable: '--font-inter',
-})
+const inter = Inter({ subsets: ['latin'] })
 
-const playfair = Playfair_Display({ 
-  subsets: ['latin'],
-  variable: '--font-playfair',
-})
-
+// ✅ Correct: Separate metadata export
 export const metadata: Metadata = {
-  title: 'RestaurantPro - Grow Your Restaurant Business',
-  description: 'The future of restaurant management. Streamline operations, increase efficiency, and boost profits.',
-  viewport: 'width=device-width, initial-scale=1',
+  title: 'DineFlow - Restaurant Management',
+  description: 'Modern restaurant management and food ordering platform',
+  icons: {
+    icon: '/favicon.ico',
+  },
+}
+
+// ✅ Correct: Separate viewport export
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 }
 
 export default function RootLayout({
@@ -26,11 +27,9 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-      <body className="font-sans">
-        <ClientLayout>
-          {children}
-        </ClientLayout>
+    <html lang="en">
+      <body className={inter.className}>
+        {children}
       </body>
     </html>
   )

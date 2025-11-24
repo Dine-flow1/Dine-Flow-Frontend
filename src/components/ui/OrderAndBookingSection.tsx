@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from "react";
-import MenuItemCard from "@/src/components/ui/MenuItemCard";
-import TableBookingForm from "@/src/components/ui/TableBookingForm";
-import RestaurantHeaderSection from "@/src/components/ui/RestaurantHeaderSection";
-import { RestaurantData, MenuItem } from "@/src/types/restaurant";
+import MenuItemCard from "../../components/ui/MenuItemCard";
+import TableBookingForm from "../../components/ui/TableBookingForm";
+import RestaurantHeaderSection from "../../components/ui/RestaurantHeaderSection";
+import { RestaurantData, MenuItem } from "../../../src/types/restaurant";
 
 interface OrderAndBookingSectionProps {
   restaurant: RestaurantData;
@@ -65,7 +65,7 @@ const OrderAndBookingSection: React.FC<OrderAndBookingSectionProps> = ({ restaur
                 <h3 className="mb-2 text-2xl font-semibold text-gray-700">No menu items found</h3>
                 <p className="text-gray-500">Try adjusting your search or filters</p>
               </div>
-            ) : (
+            ) : 
               filteredMenu.map((item) => (
                 <MenuItemCard key={item._id} item={item} />
               ))}

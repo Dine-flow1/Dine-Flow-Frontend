@@ -4,7 +4,7 @@
       "_id": "user_1",
       "fullName": "John Doe",
       "email": "john@example.com",
-      "password": "",
+      "password": "$2a$12$KcT7O8VQ8Q8Q8Q8Q8Q8Q8u",
       "googleId": null,
       "role": "customer",
       "contact": "9876543210",
@@ -19,14 +19,88 @@
           "coordinates": [0, 0]
         }
       },
-      "isAccountVerified": false,
+      "isAccountVerified": true,
+      "verifyOtp": null,
+      "verifyOtpExpireAt": null,
+      "resetOtp": null,
+      "resetOtpExpireAt": null
+    },
+    {
+      "_id": "user_owner_1",
+      "fullName": "Restaurant Owner",
+      "email": "restaurantowner@gmail.com",
+      "password": "$2a$12$KcT7O8VQ8Q8Q8Q8Q8Q8Q8u",
+      "googleId": null,
+      "role": "owner",
+      "contact": "9876543210",
+      "profileImage": "",
+      "address": {
+        "street": "",
+        "city": "",
+        "state": "",
+        "zip": "",
+        "location": {
+          "type": "Point",
+          "coordinates": [0, 0]
+        }
+      },
+      "isAccountVerified": true,
+      "verifyOtp": null,
+      "verifyOtpExpireAt": null,
+      "resetOtp": null,
+      "resetOtpExpireAt": null
+    },
+    {
+      "_id": "user_manager_1",
+      "fullName": "Restaurant Manager",
+      "email": "manager@dineflow.com",
+      "password": "$2a$12$KcT7O8VQ8Q8Q8Q8Q8Q8Q8u",
+      "googleId": null,
+      "role": "manager",
+      "contact": "9876543212",
+      "profileImage": "",
+      "address": {
+        "street": "",
+        "city": "",
+        "state": "",
+        "zip": "",
+        "location": {
+          "type": "Point",
+          "coordinates": [0, 0]
+        }
+      },
+      "isAccountVerified": true,
+      "verifyOtp": null,
+      "verifyOtpExpireAt": null,
+      "resetOtp": null,
+      "resetOtpExpireAt": null
+    },
+    {
+      "_id": "user_admin_1",
+      "fullName": "System Admin",
+      "email": "admin@dineflow.com",
+      "password": "$2a$12$KcT7O8VQ8Q8Q8Q8Q8Q8Q8u",
+      "googleId": null,
+      "role": "admin",
+      "contact": "9876543200",
+      "profileImage": "",
+      "address": {
+        "street": "",
+        "city": "",
+        "state": "",
+        "zip": "",
+        "location": {
+          "type": "Point",
+          "coordinates": [0, 0]
+        }
+      },
+      "isAccountVerified": true,
       "verifyOtp": null,
       "verifyOtpExpireAt": null,
       "resetOtp": null,
       "resetOtpExpireAt": null
     }
   ],
-
   "restaurants": [
     {
       "_id": "rest_1",
@@ -41,7 +115,7 @@
       "otp": null,
       "otpExpires": null,
       "isVerified": false,
-      "ownerId": "user_owner",
+      "ownerId": "user_owner_1",
       "panNumber": "",
       "gstinNumber": "",
       "fssaiNumber": "",
@@ -75,7 +149,6 @@
       "createdAt": "2025-01-01T00:00:00Z"
     }
   ],
-
   "subscriptions": [
     {
       "_id": "sub_1",
@@ -89,7 +162,6 @@
       "createdAt": "2025-01-01T00:00:00Z"
     }
   ],
-
   "menuCategories": [
     {
       "_id": "cat_1",
@@ -101,7 +173,6 @@
       "image": null
     }
   ],
-
   "menuItems": [
     {
       "_id": "item_1",
@@ -119,7 +190,6 @@
       "tags": ["biryani", "nonveg"]
     }
   ],
-
   "orders": [
     {
       "_id": "order_1",
@@ -170,7 +240,6 @@
       }
     }
   ],
-
   "payments": [
     {
       "_id": "pay_1",
@@ -186,7 +255,6 @@
       "createdAt": "2025-01-01T00:00:00Z"
     }
   ],
-
   "tableBookings": [
     {
       "_id": "tbl_1",

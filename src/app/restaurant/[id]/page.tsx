@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
-import { apiService } from "@/src/lib/apiService";
-import { RestaurantData, MenuItem } from "@/src/types/restaurant";
-import Navbar from "@/src/components/ui/Navbar";
-import LoadingSpinner from "@/src/components/ui/LoadingSpinner";
-import OrderAndBookingSection from "@/src/components/ui/OrderAndBookingSection";
+import { apiService } from "../../../lib/apiService";
+import { RestaurantData, MenuItem } from "../../../types/restaurant";
+import Navbar from "../../../components/ui/Navbar";
+import LoadingSpinner from "../../../components/ui/LoadingSpinner";
+import OrderAndBookingSection from "../../../components/ui/OrderAndBookingSection";
 
 export default function RestaurantDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);

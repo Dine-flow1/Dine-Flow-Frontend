@@ -1,10 +1,10 @@
 "use client";
 import { useEffect } from 'react';
 import { gsap } from 'gsap';
-import StatsCard from '@/src/components/ui/SaasOwner/StatsCard';
-import MetricChart from '@/src/components/ui/SaasOwner/Dashboard/MetricChart';
-import RecentActivity from '@/src/components/ui/SaasOwner/Dashboard/RecentActivity';
-import QuickActions from '@/src/components/ui/SaasOwner/Dashboard/QuickActions';
+import StatsCard from '../../components/ui/SaasOwner/StatsCard';
+import MetricChart from '../../components/ui/SaasOwner/Dashboard/MetricChart';
+import RecentActivity from '../../components/ui/SaasOwner/Dashboard/RecentActivity';
+import QuickActions from '../../components/ui/SaasOwner/Dashboard/QuickActions';
 import Link from 'next/link';
 
 const Dashboard = () => {
@@ -19,7 +19,7 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="p-6 text-white bg-gradient-to-r from-blue-600 to-purple-700 rounded-2xl">
+      <div className="p-6 text-white bg-linear-to-r from-blue-600 to-purple-700 rounded-2xl">
         <h1 className="mb-2 text-2xl font-bold">Welcome back, Admin! 👋</h1>
         <p className="text-blue-100">Here's what's happening with your SaaS today.</p>
       </div>

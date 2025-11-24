@@ -1,27 +1,113 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "../../components/ui/Navbar";
 import Footer from "../../components/ui/Footer";
 import Button from "../../components/ui/Buttons";
 import { FcGoogle } from "react-icons/fc";
-import { FaFacebookF } from "react-icons/fa";
+
+interface LoginResponse {
+  error?: boolean;
+  data?: {
+    user: any;
+    token?: string;
+  };
+  message?: string;
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const message = searchParams.get('message');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Show success message if redirected from signup
+  useEffect(() => {
+    if (message === 'signup_success') {
+      setError(""); // Clear any errors
+      // You can show a success message here
+      alert("🎉 Account created successfully! Please login.");
+    }
+  }, [message]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setLoading(true);
+    setError("");
+
+    try {
+      // Call authentication API
+      const response = await fetch("http://localhost:3001/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result: LoginResponse = await response.json();
+
+      if (!response.ok || result.error) {
+        setError(result.message || "Login failed. Please try again.");
+        return;
+      }
+
+      const { user, token } = result.data!;
+
+      // Store user data and token
+      localStorage.setItem("token", token!);
+      localStorage.setItem("user", JSON.stringify(user));
+      
+      // Redirect based on user role
+      redirectBasedOnRole(user.role);
+      
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleGoogleLogin = () => {
-    console.log("Google login clicked");
+  const redirectBasedOnRole = (role: string) => {
+    switch (role) {
+      case "admin":
+      case "saasowner":
+        router.push("/saasowner/dashboard");
+        break;
+      case "owner":
+        router.push("/owner/dashboard");
+        break;
+      case "manager":
+        router.push("/manager/dashboard");
+        break;
+      case "customer":
+        router.push("/"); // Redirect to home page for customers
+        break;
+      default:
+        router.push("/");
+        break;
+    }
   };
 
-  const handleFacebookLogin = () => {
-    console.log("Facebook login clicked");
+  const handleGoogleLogin = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      
+      // Implement Google OAuth - this would redirect to your backend OAuth endpoint
+      window.location.href = "http://localhost:3001/api/auth/google";
+      
+    } catch (err) {
+      console.error("Google login error:", err);
+      setError("Google login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -39,6 +125,18 @@ export default function LoginPage() {
               </p>
             </div>
 
+            {error && (
+              <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 border border-red-200 rounded-lg">
+                {error}
+              </div>
+            )}
+
+            {message === 'signup_success' && (
+              <div className="p-3 mb-4 text-sm text-green-700 bg-green-100 border border-green-200 rounded-lg">
+                Account created successfully! Please login.
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label
@@ -55,6 +153,7 @@ export default function LoginPage() {
                   className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   placeholder="Enter your email"
                   required
+                  disabled={loading}
                 />
               </div>
 
@@ -73,11 +172,18 @@ export default function LoginPage() {
                   className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   placeholder="Enter your password"
                   required
+                  disabled={loading}
                 />
               </div>
 
-              <Button type="submit" variant="primary" size="lg" className="w-full" >
-                Sign In
+              <Button 
+                type="submit" 
+                variant="primary" 
+                size="lg" 
+                className="w-full"
+                disabled={loading}
+              >
+                {loading ? "Signing In..." : "Sign In"}
               </Button>
             </form>
 
@@ -94,19 +200,11 @@ export default function LoginPage() {
                 onClick={handleGoogleLogin}
                 variant="secondary"
                 className="flex items-center justify-center w-full gap-3 border border-gray-300 hover:bg-gray-50"
+                disabled={loading}
               >
                 <FcGoogle size={22} />
                 Continue with Google
               </Button>
-
-              {/* <Button
-                onClick={handleFacebookLogin}
-                variant="secondary"
-                className="flex items-center justify-center w-full gap-3 text-white bg-blue-600 hover:bg-blue-700"
-              >
-                <FaFacebookF size={20} />
-                Continue with Facebook
-              </Button> */}
             </div>
 
             <div className="mt-6 text-center">

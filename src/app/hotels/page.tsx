@@ -1,7 +1,7 @@
 // app/hotels/page.tsx
 "use client"
 import { useState, useMemo } from "react";
-import Navbar from "@/src/components/ui/Navbar";
+import Navbar from "../../components/ui/Navbar";
 import RestaurantCard from "../../components/ui/RestaurandCard";
 import Footer from "../../components/ui/Footer"; // Import your Footer component
 import { restaurants } from "../../data/restaurants";
