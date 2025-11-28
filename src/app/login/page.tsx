@@ -6,11 +6,12 @@ import Navbar from "../../components/ui/Navbar";
 import Footer from "../../components/ui/Footer";
 import Button from "../../components/ui/Buttons";
 import { FcGoogle } from "react-icons/fc";
+import { User } from "../../Context/AuthContext";
 
 interface LoginResponse {
   error?: boolean;
   data?: {
-    user: any;
+    user: User;
     token?: string;
   };
   message?: string;
@@ -23,13 +24,12 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const message = searchParams.get('message');
+  const message = searchParams.get("message");
 
   // Show success message if redirected from signup
   useEffect(() => {
-    if (message === 'signup_success') {
-      setError(""); // Clear any errors
-      // You can show a success message here
+    if (message === "signup_success") {
+      setError(""); 
       alert("🎉 Account created successfully! Please login.");
     }
   }, [message]);
@@ -40,13 +40,14 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // Call authentication API
-      const response = await fetch("http://localhost:3001/api/auth/login", {
+      // Call correct authentication API
+      const response = await fetch("http://localhost:5000/api/auth/Login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
+        credentials: "include",
       });
 
       const result: LoginResponse = await response.json();
@@ -61,10 +62,9 @@ export default function LoginPage() {
       // Store user data and token
       localStorage.setItem("token", token!);
       localStorage.setItem("user", JSON.stringify(user));
-      
+
       // Redirect based on user role
       redirectBasedOnRole(user.role);
-      
     } catch (err) {
       console.error("Login error:", err);
       setError("An unexpected error occurred. Please try again.");
@@ -74,19 +74,20 @@ export default function LoginPage() {
   };
 
   const redirectBasedOnRole = (role: string) => {
-    switch (role) {
-      case "admin":
+    console.log(role);
+    
+    switch (role) {  
       case "saasowner":
         router.push("/saasowner/dashboard");
         break;
-      case "owner":
-        router.push("/owner/dashboard");
+      case "restaurant_owner":
+        router.push("/restaurant-owners");
         break;
       case "manager":
         router.push("/manager/dashboard");
         break;
       case "customer":
-        router.push("/"); // Redirect to home page for customers
+        router.push("/");
         break;
       default:
         router.push("/");
@@ -98,10 +99,9 @@ export default function LoginPage() {
     try {
       setLoading(true);
       setError("");
-      
+
       // Implement Google OAuth - this would redirect to your backend OAuth endpoint
       window.location.href = "http://localhost:3001/api/auth/google";
-      
     } catch (err) {
       console.error("Google login error:", err);
       setError("Google login failed. Please try again.");
@@ -131,7 +131,7 @@ export default function LoginPage() {
               </div>
             )}
 
-            {message === 'signup_success' && (
+            {message === "signup_success" && (
               <div className="p-3 mb-4 text-sm text-green-700 bg-green-100 border border-green-200 rounded-lg">
                 Account created successfully! Please login.
               </div>
@@ -176,9 +176,9 @@ export default function LoginPage() {
                 />
               </div>
 
-              <Button 
-                type="submit" 
-                variant="primary" 
+              <Button
+                type="submit"
+                variant="primary"
                 size="lg" 
                 className="w-full"
                 disabled={loading}
