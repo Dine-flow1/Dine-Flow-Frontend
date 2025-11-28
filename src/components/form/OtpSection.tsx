@@ -32,7 +32,7 @@ const OtpSection: React.FC<OtpSectionProps> = ({
         
         <button
           onClick={onVerify}
-          disabled={isVerified || loading || otp.length !== 6}
+          disabled={isVerified || loading }
           className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           {loading ? 'Verifying...' : isVerified ? 'Verified' : 'Verify OTP'}
