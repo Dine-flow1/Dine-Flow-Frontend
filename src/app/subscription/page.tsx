@@ -6,9 +6,8 @@ import PlanCard from "../../components/Subscription/PlanCard";
 import FeatureComparison from "../../components/Subscription/FeatureComparison";
 import FAQ from "../../components/Subscription/FAQ";
 import { Crown, Shield, Users, Zap, Clock, Calendar } from "lucide-react";
-import Navbar from "@/src/components/ui/Navbar";
-import Footer from "@/src/components/ui/Footer"
-
+import Navbar from "../../components/ui/Navbar";
+import Footer from "../../components/ui/Footer"
 export default function SubscriptionPage() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 

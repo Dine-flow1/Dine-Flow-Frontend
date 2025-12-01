@@ -1,5 +1,5 @@
 import { restaurants } from "../../../data/restaurants";
-import MenuItemCard from "@/src/components/ui/MenuItemCard";
+import MenuItemCard from "@/components/ui/MenuItemCard";
 import { MenuItem } from "../../../types/restaurant";
 
 export default function RestaurantDetail({ params }: { params: { id: string } }) {
