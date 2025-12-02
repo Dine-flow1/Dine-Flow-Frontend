@@ -64,7 +64,7 @@ export default function RestaurantDetail({ params }: { params: Promise<{ id: str
               {error || "Restaurant not found"}
             </h1>
             <p className="text-gray-600 mb-6">
-              We couldn't find the restaurant you're looking for.
+              We couldn&#39;t find the restaurant you&#39;re looking for.
             </p>
             <button 
               onClick={() => window.history.back()}

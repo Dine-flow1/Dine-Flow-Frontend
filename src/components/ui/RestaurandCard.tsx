@@ -1,6 +1,7 @@
 // components/RestaurantCard.tsx
 import Link from "next/link";
-import { RestaurantData } from "@/src/types/restaurant";
+import Image from "next/image";
+import { RestaurantData } from "@/types/restaurant";
 
 interface RestaurantCardProps {
   restaurant: RestaurantData;
@@ -9,18 +10,20 @@ interface RestaurantCardProps {
 export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
   // Safe access to properties with fallbacks
   const restaurantName = restaurant.restaurantName || "Restaurant";
-  const restaurantImage = restaurant.image as string || "/api/placeholder/400/300";
+  const restaurantImage = (restaurant.bannerImage as string) || "/api/restaurants/restaurants";
   const restaurantType = restaurant.restaurantType || "Multi-cuisine";
-  const restaurantAddress = restaurant.address || restaurant.location || "Location not specified";
+  const restaurantAddress = restaurant.location || "Location not specified";
   const restaurantDescription = restaurant.description || "Experience the finest dining with authentic flavors and exceptional service.";
 
   return (
     <div className="overflow-hidden transition-all duration-300 bg-white border border-gray-100 shadow-lg rounded-2xl hover:shadow-xl hover:-translate-y-1">
       {/* Restaurant Image */}
       <div className="relative h-48 overflow-hidden">
-        <img
+        <Image
           src={restaurantImage}
           alt={restaurantName}
+          width={1200}
+          height={400}
           className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
         />
         {/* Rating Badge */}
@@ -77,7 +80,7 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
 
         {/* View Menu Button - Now on its own line and larger */}
         <Link 
-          href={`/restaurant/${restaurant._id ?? restaurant.id}`}
+          href={`/restaurant/${restaurant._id ?? restaurant._id}`}
           className="flex items-center justify-center w-full py-3 text-base font-semibold text-white transition-colors duration-200 bg-yellow-500 rounded-lg hover:bg-yellow-600 hover:shadow-md"
         >
           View Menu 

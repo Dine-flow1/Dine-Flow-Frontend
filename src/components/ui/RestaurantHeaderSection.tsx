@@ -1,5 +1,5 @@
 import React from "react";
-import { RestaurantData } from "@/src/types/restaurant";
+import { RestaurantData } from "@/types/restaurant";
 
 interface RestaurantHeaderSectionProps {
   restaurant: RestaurantData;

@@ -10,8 +10,8 @@ export default function RegisterPage() {
     fullName: '',
     email: '',
     password: '',
-    phone: '',
-    role: 'owner' as const,
+    role: 'restaurant_owner' as const,
+    
     contact: '',
     profileImage: '',
     address: {
@@ -33,22 +33,20 @@ export default function RegisterPage() {
 
   const DEFAULT_RESTAURANT: RestaurantData = {
     _id: '',
-    id: '',
     restaurantName: '',
     restaurantType: '',
     description: '',
-    cuisine: '',
-    location: '',
     logo: '',
     bannerImage: '',
-    image: undefined,
     contactEmail: '',
     contactPhone: '',
     website: '',
+    cuisine: '',
     address: '',
-    geolocation: '',
-    deliveryRadius: '',
-    openingHours: '',
+    location: '',
+    geolocation: null,
+    deliveryRadius: 0,
+    openingHours: {},
     panNumber: '',
     gstinNumber: '',
     fssaiNumber: '',
@@ -56,6 +54,8 @@ export default function RegisterPage() {
     owner: DEFAULT_OWNER,
     ownerId: '',
     branches: [],
+    menu: [],
+    categories: [],
     isVerified: false,
     isApproved: false,
     status: 'pending_verification',
@@ -83,8 +83,8 @@ export default function RegisterPage() {
       ...formData,
       owner: {
         ...formData.owner,
-        [e.target.name]: e.target.value,
-      },
+        [e.target.name]: e.target.value ?? "",
+      } as typeof formData.owner,
     });
   };
 
@@ -138,11 +138,11 @@ const handleSubmit = async (e: React.FormEvent) => {
         registrationNumber: formData.registrationNumber,
       },
       ownerData: {
-        fullName: formData.owner.fullName,
-        email: formData.owner.email,
-        password: formData.owner.password,
-        phone: formData.owner.phone,
-        role: formData.owner.role,
+        fullName: formData.owner!.fullName,
+        email: formData.owner!.email,
+        password: formData.owner!.password,
+        phone: formData.owner!.phone,
+        role: formData.owner!.role,
       },
     };
 
