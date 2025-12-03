@@ -29,7 +29,7 @@ export default function LoginPage() {
   // Show success message if redirected from signup
   useEffect(() => {
     if (message === "signup_success") {
-      setError(""); 
+      setError("");
       alert("🎉 Account created successfully! Please login.");
     }
   }, [message]);
@@ -40,7 +40,6 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // Call correct authentication API
       const response = await fetch("http://localhost:5000/api/auth/Login", {
         method: "POST",
         headers: {
@@ -51,7 +50,6 @@ export default function LoginPage() {
       });
 
       const result: LoginResponse = await response.json();
-
       if (!response.ok || result.error) {
         setError(result.message || "Login failed. Please try again.");
         return;
@@ -75,8 +73,8 @@ export default function LoginPage() {
 
   const redirectBasedOnRole = (role: string) => {
     console.log(role);
-    
-    switch (role) {  
+
+    switch (role) {
       case "saasowner":
         router.push("/saasowner/dashboard");
         break;
@@ -179,7 +177,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 variant="primary"
-                size="lg" 
+                size="lg"
                 className="w-full"
                 disabled={loading}
               >

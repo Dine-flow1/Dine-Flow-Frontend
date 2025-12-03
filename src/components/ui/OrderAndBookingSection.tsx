@@ -10,10 +10,15 @@ interface OrderAndBookingSectionProps {
 }
 
 const OrderAndBookingSection: React.FC<OrderAndBookingSectionProps> = ({ restaurant, menuItems }) => {
+  // console.log("memuitms",menuItems);
+  
   const categories = useMemo(() => {
     const all = menuItems.map(item => item.category || "Main Courses");
+    
+    // console.log("ttsing",all);
     return ["All", ...Array.from(new Set(all))];
   }, [menuItems]);
+  console.log("test1",restaurant);   
 
   const [selectedCategory, setSelectedCategory] = useState("All");
 
