@@ -6,7 +6,7 @@ type RestaurantsResponse = {
 };
 
 export const getRestaurants = async (): Promise<RestaurantData[]> => {
-  const res = await fetch("http://localhost:5000/api/restaurants/restaurants", {
+  const res = await fetch("http://localhost:9999/api/restaurants/restaurants", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

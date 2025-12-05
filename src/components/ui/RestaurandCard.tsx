@@ -8,7 +8,7 @@ interface RestaurantCardProps {
 }
 
 export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
-  // console.log("sdfksjdalfksdjf",restaurant._id);
+  console.log("sdfksjdalfksdjf",restaurant._id);
 
   // Safe access to properties with fallbacks
   const restaurantName = restaurant.restaurantName || "Restaurant";

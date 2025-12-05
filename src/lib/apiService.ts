@@ -2,7 +2,7 @@ import { MenuItem, RestaurantData, TableBooking } from "../types/restaurant";
 import { ApiOrder } from "../types/order";
 import { User } from "../types/manager";
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "http://localhost:9999";
 
 class ApiService {
   private baseURL: string;
