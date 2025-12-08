@@ -45,7 +45,7 @@ const Signup = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isOtpSent, setIsOtpSent] = useState(false);
-  const [otp, setOtp] = useState<number | null>(null);
+  const [otp, setOtp] = useState<string>("");
   const [isVerified, setIsVerified] = useState(false);
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
@@ -129,7 +129,11 @@ const Signup = () => {
         role: "customer",
       };
 
+<<<<<<< Updated upstream
       const response = await fetch(" http://localhost:9999/api/auth/register", {
+=======
+      const response = await fetch("http://localhost:9999/api/auth/register", {
+>>>>>>> Stashed changes
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -178,7 +182,7 @@ const Signup = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email,
-            otp, // already a number
+            otp: parseInt(otp, 10),
           }),
           credentials: "include",
         }

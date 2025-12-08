@@ -40,6 +40,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   setLoading(true);
   setError("");
 
+<<<<<<< Updated upstream
   try {
     const response = await axios.post(
       "http://localhost:9999/api/auth/Login",
@@ -47,6 +48,22 @@ const handleSubmit = async (e: React.FormEvent) => {
       {
         withCredentials: true, 
         headers: { "Content-Type": "application/json" },
+=======
+    try {
+      const response = await fetch("http://localhost:9999/api/auth/Login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+        credentials: "include",
+      });
+
+      const result: LoginResponse = await response.json();
+      if (!response.ok || result.error) {
+        setError(result.message || "Login failed. Please try again.");
+        return;
+>>>>>>> Stashed changes
       }
     );
 

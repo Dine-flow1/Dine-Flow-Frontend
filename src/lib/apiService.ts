@@ -3,6 +3,18 @@ import { ApiOrder } from "../types/order";
 import { User } from "../types/manager";
 
 const API_BASE_URL = "http://localhost:9999";
+<<<<<<< Updated upstream
+=======
+
+class ApiError extends Error {
+  status?: number;
+  constructor(message: string, status?: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+>>>>>>> Stashed changes
 
 class ApiService {
   private baseURL: string;
@@ -11,13 +23,22 @@ class ApiService {
     this.baseURL = API_BASE_URL;
   }
 
-  private async fetchData(endpoint: string, options: RequestInit = {}) {
-    const url = `${this.baseURL}/${endpoint}`;
+  private async fetchData(endpoint: string, options: { body?: any; [key: string]: any } = {}) {
+    // normalize base and endpoint to avoid double slashes and allow absolute URLs
+    const trimmedBase = this.baseURL.replace(/\/+$/, "");
+    const trimmedEndpoint = endpoint.replace(/^\/+/, "");
+    const url = endpoint.startsWith("http")
+      ? endpoint
+      : `${trimmedBase}/${trimmedEndpoint}`;
 
-    const config: RequestInit = {
+    // get token from localStorage
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+    const config: RequestInit & { body?: any } = {
       method: options.method || "GET",
       headers: {
         "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(options.headers || {}),
       },
       credentials: "include", // ✅ send cookies automatically
@@ -33,12 +54,21 @@ class ApiService {
 
       if (!response.ok) {
         if (response.status === 401) {
-          throw new Error("Unauthorized. Please login again.");
+          // throw typed error so callers can handle auth failures
+          throw new ApiError("Unauthorized. Please login again.", 401);
         }
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new ApiError(`HTTP error! status: ${response.status}`, response.status);
       }
 
-      return await response.json();
+      // handle No Content and non-JSON responses safely
+      if (response.status === 204) return null;
+      const text = await response.text();
+      if (!text) return null;
+      try {
+        return JSON.parse(text);
+      } catch {
+        return text;
+      }
     } catch (error) {
       console.error("API call failed:", error);
       throw error;
@@ -60,21 +90,23 @@ class ApiService {
       const restaurant = await this.fetchData(`api/restaurants/${id}`);
       return this.transformRestaurant(restaurant);
     } catch (error: any) {
-      if (error.message.includes("404")) return null;
+      // handle both string-message and typed ApiError cases
+      const status = error?.status ?? (typeof error?.message === "string" && error.message.includes("401") ? 401 : undefined);
+      if (status === 404 || status === 401) return null;
       throw error;
     }
   }
 
   async getMenuItems(restaurantId: string): Promise<MenuItem[]> {
     const response = await this.fetchData(`api/menu/fullmenu/${restaurantId}`);
-    const menu = response.data.menu || [];
-    const items = menu.flatMap((section: any) =>
-      section.items.map((item: any) => ({
+    // support multiple response shapes: { data: { menu: [...] } } or { menu: [...] }
+    const menu = response?.data?.menu ?? response?.menu ?? [];
+    const items = (menu || []).flatMap((section: any) =>
+      (section.items || []).map((item: any) => ({
         ...item,
         category: section.category?.name || "Main Courses",
       }))
     );
-
     return items;
   }
 

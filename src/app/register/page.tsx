@@ -98,6 +98,17 @@ export default function RestaurantRegisterPage() {
         phone: formData.phone,
         role: "restaurant_owner",
       },
+<<<<<<< Updated upstream
+=======
+    };
+
+    const response = await fetch("http://localhost:9999/api/restaurants/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+>>>>>>> Stashed changes
     });
 
     if (ok) {
