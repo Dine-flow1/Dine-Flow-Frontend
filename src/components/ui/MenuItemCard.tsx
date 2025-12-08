@@ -14,7 +14,7 @@ export default function MenuItemCard({ item }: MenuItemCardProps) {
   const router = useRouter();
 
   const category = item.category || "Main Course";
-  const isVeg = item.type === "veg"; // optional if you store veg/non-veg
+  const isVeg = item.type === "veg";
 
   const handleAddToCart = () => {
     showSuccessToast(`Added ${quantity} × ${item.name} to cart!`);

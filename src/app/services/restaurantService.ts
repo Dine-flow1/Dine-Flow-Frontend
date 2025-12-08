@@ -1,4 +1,5 @@
 // services/restaurantService.ts
+import axios from "axios";
 import { RestaurantData } from "../../types/restaurant";
 
 type RestaurantsResponse = {
@@ -6,21 +7,20 @@ type RestaurantsResponse = {
 };
 
 export const getRestaurants = async (): Promise<RestaurantData[]> => {
-  const res = await fetch("http://localhost:9999/api/restaurants/restaurants", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
+  try {
+    const res = await axios.get<RestaurantsResponse>(
+      "http://localhost:9999/api/restaurants/restaurants",
+      {
+        withCredentials: true, 
+      }
+    );
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch restaurants: ${res.status} ${res.statusText}`);
+    console.debug("restaurants response", res.data);
+
+    return res.data?.data ?? [];
+  } catch (error: any) {
+    throw new Error(
+      `Failed to fetch restaurants: ${error.response?.status} ${error.response?.statusText}`
+    );
   }
-
-  const data: RestaurantsResponse = await res.json();
-
-  console.debug("restaurants response", data);
-
-  return data?.data ?? [];
 };

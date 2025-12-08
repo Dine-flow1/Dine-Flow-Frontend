@@ -7,6 +7,7 @@ import Footer from "../../components/ui/Footer";
 import Button from "../../components/ui/Buttons";
 import { FcGoogle } from "react-icons/fc";
 import { User } from "../../Context/AuthContext";
+import axios from "axios";
 
 interface LoginResponse {
   error?: boolean;
@@ -34,42 +35,44 @@ export default function LoginPage() {
     }
   }, [message]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-    try {
-      const response = await fetch(" http://localhost:9999/api/auth/Login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-        credentials: "include",
-      });
-
-      const result: LoginResponse = await response.json();
-      if (!response.ok || result.error) {
-        setError(result.message || "Login failed. Please try again.");
-        return;
+  try {
+    const response = await axios.post(
+      "http://localhost:9999/api/auth/Login",
+      { email, password },
+      {
+        withCredentials: true, 
+        headers: { "Content-Type": "application/json" },
       }
+    );
 
-      const { user, token } = result.data!;
+    const result: LoginResponse = response.data;
 
-      // Store user data and token
-      localStorage.setItem("token", token!);
-      localStorage.setItem("user", JSON.stringify(user));
-
-      // Redirect based on user role
-      redirectBasedOnRole(user.role);
-    } catch (err) {
-      console.error("Login error:", err);
-      setError("An unexpected error occurred. Please try again.");
-    } finally {
-      setLoading(false);
+    if (!result.success) {
+      setError(result.message || "Login failed. Please try again.");
+      return;
     }
-  };
+
+    const { user, token } = result.data;
+    if (token) {
+      localStorage.setItem("token", token);
+    }
+
+    localStorage.setItem("user", JSON.stringify(user));
+
+    // Redirect based on user role
+    redirectBasedOnRole(user.role);
+  } catch (err: any) {
+    console.error("Login error:", err);
+    setError("An unexpected error occurred. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const redirectBasedOnRole = (role: string) => {
     console.log(role);
