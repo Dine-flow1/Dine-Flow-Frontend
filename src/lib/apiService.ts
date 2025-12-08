@@ -1,63 +1,56 @@
+import axios, { AxiosInstance } from "axios";
 import { MenuItem, RestaurantData, TableBooking } from "../types/restaurant";
 import { ApiOrder } from "../types/order";
 import { User } from "../types/manager";
 
-const API_BASE_URL = "http://localhost:9999";
+const API_BASE_URL = "http://localhost:9999/api";
 
 class ApiService {
-  private baseURL: string;
+  private api: AxiosInstance;
 
   constructor() {
-    this.baseURL = API_BASE_URL;
-  }
-
-  private async fetchData(endpoint: string, options: RequestInit = {}) {
-    const url = `${this.baseURL}/${endpoint}`;
-
-    const config: RequestInit = {
-      method: options.method || "GET",
+    this.api = axios.create({
+      baseURL: API_BASE_URL,
+      withCredentials: true, // ✅ important for cookies
       headers: {
         "Content-Type": "application/json",
-        ...(options.headers || {}),
       },
-      credentials: "include", // ✅ send cookies automatically
-      ...options,
-    };
+    });
+  }
 
-    if (config.body && typeof config.body !== "string") {
-      config.body = JSON.stringify(config.body);
-    }
-
+  private async request(endpoint: string, options: any = {}) {
     try {
-      const response = await fetch(url, config);
+      const res = await this.api.request({
+        url: endpoint,
+        method: options.method || "GET",
+        data: options.body || undefined,
+        params: options.params || undefined,
+        headers: {
+          ...options.headers,
+        },
+      });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error("Unauthorized. Please login again.");
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("API call failed:", error);
-      throw error;
+      return res.data.data || res.data; 
+    } catch (error: any) {
+      console.error("API Error:", error.response?.data || error.message);
+      throw error.response?.data || error;
     }
   }
 
-  // ----------------------------
+  // -------------------------------
   // RESTAURANTS
-  // ----------------------------
+  // -------------------------------
   async getRestaurants(): Promise<RestaurantData[]> {
-    const restaurants = await this.fetchData("api/restaurants");
-    return restaurants.map((restaurant: any) =>
-      this.transformRestaurant(restaurant)
-    );
+    const restaurants = await this.request("/restaurants");
+
+    
+    return restaurants.map((r: any) => this.transformRestaurant(r));
   }
 
   async getRestaurant(id: string): Promise<RestaurantData | null> {
     try {
-      const restaurant = await this.fetchData(`api/restaurants/${id}`);
+      const restaurant = await this.request(`/restaurants/${id}`);
+          // console.log("dsfkjsdlkfjsa",restaurant);
       return this.transformRestaurant(restaurant);
     } catch (error: any) {
       if (error.message.includes("404")) return null;
@@ -65,9 +58,13 @@ class ApiService {
     }
   }
 
+  // -------------------------------
+  // MENU
+  // -------------------------------
   async getMenuItems(restaurantId: string): Promise<MenuItem[]> {
-    const response = await this.fetchData(`api/menu/fullmenu/${restaurantId}`);
-    const menu = response.data.menu || [];
+    const response = await this.request(`/menu/fullmenu/${restaurantId}`);
+    const menu = response.menu || []; // adjusted if backend sends { menu: [...] }
+
     const items = menu.flatMap((section: any) =>
       section.items.map((item: any) => ({
         ...item,
@@ -78,28 +75,61 @@ class ApiService {
     return items;
   }
 
-  async createMenuItem(itemData: Partial<MenuItem>): Promise<MenuItem> {
-    const createdItem = await this.fetchData("/api/menuItems", {
+  // -------------------------------
+  // ORDERS
+  // -------------------------------
+  async getOrders(userId?: string, restaurantId?: string): Promise<ApiOrder[]> {
+    const params: any = {};
+    if (userId) params["customer.customerId"] = userId;
+    if (restaurantId) params["restaurant.restaurantId"] = restaurantId;
+
+    return this.request(`/order`, { params });
+  }
+
+  async createOrder(orderData: Partial<ApiOrder>): Promise<ApiOrder> {
+    return this.request(`/order`, { method: "POST", body: orderData });
+  }
+
+  // -------------------------------
+  // TABLE BOOKINGS
+  // -------------------------------
+  async getTableBookings(restaurantId: string): Promise<TableBooking[]> {
+    return this.request(`/tableBooking`, {
+      params: { restaurantId },
+    });
+  }
+
+  async createTableBooking(bookingData: any): Promise<TableBooking> {
+    return this.request(`/tableBooking`, {
       method: "POST",
-      body: itemData,
+      body: bookingData,
     });
-    return this.transformMenuItem(createdItem);
   }
 
-  async updateMenuItem(
-    id: string,
-    itemData: Partial<MenuItem>
-  ): Promise<MenuItem> {
-    const updatedItem = await this.fetchData(`/api/menuItems/${id}`, {
-      method: "PATCH",
-      body: itemData,
-    });
-    return this.transformMenuItem(updatedItem);
+  // -------------------------------
+  // USERS
+  // -------------------------------
+  async getUsers(): Promise<User[]> {
+    return this.request(`/auth/users`);
   }
 
-  // ----------------------------
+  async getUser(id: string): Promise<User> {
+    return this.request(`/auth/users/${id}`);
+  }
+
+  // -------------------------------
+  // PAYMENTS
+  // -------------------------------
+  async createPayment(paymentData: any): Promise<any> {
+    return this.request(`/payments`, {
+      method: "POST",
+      body: paymentData,
+    });
+  }
+
+  // -------------------------------
   // TRANSFORMERS
-  // ----------------------------
+  // -------------------------------
   private transformRestaurant(restaurant: any): RestaurantData {
     return {
       ...restaurant,
@@ -115,82 +145,6 @@ class ApiService {
       ...item,
       id: item._id,
     };
-  }
-
-  // ----------------------------
-  // ORDERS
-  // ----------------------------
-  async getOrders(userId?: string, restaurantId?: string): Promise<ApiOrder[]> {
-    let url = "orders";
-    const params = new URLSearchParams();
-    if (userId) params.append("customer.customerId", userId);
-    if (restaurantId) params.append("restaurant.restaurantId", restaurantId);
-    const qs = params.toString();
-    if (qs) url += `?${qs}`;
-    return this.fetchData(url);
-  }
-
-  async createOrder(orderData: Partial<ApiOrder>): Promise<ApiOrder> {
-    return this.fetchData("orders", { method: "POST", body: orderData });
-  }
-
-  async updateOrderStatus(orderId: string, status: string): Promise<ApiOrder> {
-    const order = await this.fetchData(`orders/${orderId}`);
-    return this.fetchData(`orders/${orderId}`, {
-      method: "PATCH",
-      body: {
-        orderStatus: {
-          ...order.orderStatus,
-          [status]: new Date().toISOString(),
-        },
-      },
-    });
-  }
-
-  // ----------------------------
-  // TABLE BOOKINGS
-  // ----------------------------
-  async getTableBookings(restaurantId: string): Promise<TableBooking[]> {
-    return this.fetchData(`tableBookings?restaurantId=${restaurantId}`);
-  }
-
-  async createTableBooking(bookingData: any): Promise<TableBooking> {
-    return this.fetchData("tableBookings", {
-      method: "POST",
-      body: bookingData,
-    });
-  }
-
-  // ----------------------------
-  // USERS
-  // ----------------------------
-  async getUsers(): Promise<User[]> {
-    return this.fetchData("users");
-  }
-
-  async getUser(id: string): Promise<User> {
-    return this.fetchData(`users/${id}`);
-  }
-
-  // ----------------------------
-  // PAYMENTS
-  // ----------------------------
-  async createPayment(paymentData: any): Promise<any> {
-    return this.fetchData("payments", { method: "POST", body: paymentData });
-  }
-
-  // ----------------------------
-  // MENU CATEGORIES
-  // ----------------------------
-  async getMenuCategories(restaurantId: string): Promise<any[]> {
-    return this.fetchData(`menuCategories?restaurantId=${restaurantId}`);
-  }
-
-  // ----------------------------
-  // SUBSCRIPTIONS
-  // ----------------------------
-  async getSubscriptions(restaurantId: string): Promise<any[]> {
-    return this.fetchData(`subscriptions?restaurantId=${restaurantId}`);
   }
 }
 
