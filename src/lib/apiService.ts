@@ -3,8 +3,6 @@ import { ApiOrder } from "../types/order";
 import { User } from "../types/manager";
 
 const API_BASE_URL = "http://localhost:9999";
-<<<<<<< Updated upstream
-=======
 
 class ApiError extends Error {
   status?: number;
@@ -14,7 +12,6 @@ class ApiError extends Error {
     this.status = status;
   }
 }
->>>>>>> Stashed changes
 
 class ApiService {
   private baseURL: string;
