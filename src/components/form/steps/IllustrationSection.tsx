@@ -25,7 +25,7 @@ export const IllustrationSection: React.FC<IllustrationSectionProps> = ({
           </svg>
         </div>
         <h2 className="text-3xl font-bold mb-4 text-center">
-          Welcome to RestaurantPro
+          Welcome to DineFlow Restaurants
         </h2>
         <p className="text-lg text-blue-100 text-center mb-8 max-w-md">
           Join thousands of successful restaurants growing their business with

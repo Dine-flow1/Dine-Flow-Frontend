@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Button from './Buttons';
-import { navigation } from '../../data/navigation';
-import UserProfile from './UserProfile'; // We'll create this
+import UserProfile from './UserProfile';
 import { useAuth } from '../../Context/AuthContext';
 
 const Navbar = () => {
@@ -21,6 +20,23 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Navigation items for authenticated users
+  const authenticatedNavigation = [
+    { name: 'Home', href: '/' },
+    { name: 'Hotels', href: '/hotels' },
+    { name: 'Orders', href: '/orders' },
+  ];
+
+  // Navigation items for non-authenticated users
+  const publicNavigation = [
+    { name: 'Home', href: '/' },
+    { name: 'Hotels', href: '/hotels' },
+    { name: 'About', href: '/about' },
+    { name: 'Contact', href: '/contact' },
+  ];
+
+  const navigationItems = isAuthenticated ? authenticatedNavigation : publicNavigation;
+
   return (
     <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
       isScrolled ? 'bg-white backdrop-blur-lg shadow-lg' : 'bg-transparent'
@@ -35,7 +51,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="items-center hidden space-x-8 md:flex">
-            {navigation.map((item) => (
+            {navigationItems.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
@@ -71,7 +87,7 @@ const Navbar = () => {
           <div className="flex items-center space-x-2 md:hidden">
             {isAuthenticated && (
               <div className="mr-2">
-                <UserProfile />
+                <UserProfile showMobileView={true} />
               </div>
             )}
             <button
@@ -93,7 +109,7 @@ const Navbar = () => {
         {isMobileMenuOpen && (
           <div className="py-4 border-t border-amber-100 md:hidden bg-white rounded-b-lg shadow-lg">
             <div className="flex flex-col space-y-4">
-              {navigation.map((item) => (
+              {navigationItems.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
@@ -108,7 +124,7 @@ const Navbar = () => {
                 </Link>
               ))}
               
-              {!isAuthenticated ? (
+              {!isAuthenticated && (
                 <>
                   <div className="px-4 pt-2">
                     <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
@@ -125,38 +141,6 @@ const Navbar = () => {
                     </Link>
                   </div>
                 </>
-              ) : (
-                <div className="px-4 pt-2 border-t border-amber-100">
-                  <div className="py-2">
-                    <p className="text-sm font-medium text-amber-700">{currentUser?.fullName}</p>
-                    <p className="text-xs text-amber-600">{currentUser?.email}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <Link
-                      href="/profile"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="block px-4 py-2 text-sm font-medium text-amber-700 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                    >
-                      My Profile
-                    </Link>
-                    <Link
-                      href="/settings"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="block px-4 py-2 text-sm font-medium text-amber-700 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                    >
-                      Settings
-                    </Link>
-                    {currentUser?.role === 'owner' && currentUser?.restaurantId && (
-                      <Link
-                        href={`/restaurant/${currentUser.restaurantId}`}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="block px-4 py-2 text-sm font-medium text-amber-700 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                      >
-                        My Restaurant
-                      </Link>
-                    )}
-                  </div>
-                </div>
               )}
             </div>
           </div>

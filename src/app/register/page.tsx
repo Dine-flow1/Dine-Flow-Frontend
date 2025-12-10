@@ -80,44 +80,35 @@ export default function RestaurantRegisterPage() {
         otp: formData.verificationCode,
     
       },
-      {}
+      
     );
     if (ok) setCurrentStep(2);
   };
 
-  const completeRegistration = async () => {
-    const ok = await apiCall("http://localhost:9999/api/restaurants/register", {
-      restaurantData: {
-        ...formData,
-        deliveryRadius: parseInt(formData.deliveryRadius) || 0,
-      },
-      ownerData: {
-        fullName: formData.fullName,
-        email: formData.email,
-        password: formData.password,
-        phone: formData.phone,
-        role: "restaurant_owner",
-      },
-<<<<<<< Updated upstream
-=======
-    };
-
-    const response = await fetch("http://localhost:9999/api/restaurants/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
->>>>>>> Stashed changes
-    });
-
-    if (ok) {
-      alert("🎉 Restaurant registered successfully!");
-      window.location.href = "/login";
-    } else {
-      alert("Registration failed.");
-    }
+const completeRegistration = async () => {
+  const payload = {
+    restaurantData: {
+      ...formData,
+      deliveryRadius: parseInt(formData.deliveryRadius) || 0,
+    },
+    ownerData: {
+      fullName: formData.fullName,
+      email: formData.email,
+      password: formData.password,
+      phone: formData.phone,
+      role: "restaurant_owner",
+    },
   };
+
+  const ok = await apiCall("http://localhost:9999/api/restaurants/register", payload);
+
+  if (ok) {
+    alert("🎉 Restaurant registered successfully!");
+    window.location.href = "/login";
+  } else {
+    alert("Registration failed.");
+  }
+};
 
   const renderOtpInputs = () => (
     <div className="flex space-x-3 justify-center">

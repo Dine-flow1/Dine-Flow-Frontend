@@ -6,8 +6,7 @@ import Navbar from "../../components/ui/Navbar";
 import Footer from "../../components/ui/Footer";
 import Button from "../../components/ui/Buttons";
 import { FcGoogle } from "react-icons/fc";
-import { User } from "../../Context/AuthContext";
-import axios from "axios";
+import { User, useAuth } from "../../Context/AuthContext";
 
 interface LoginResponse {
   error?: boolean;
@@ -16,6 +15,7 @@ interface LoginResponse {
     token?: string;
   };
   message?: string;
+  success?: boolean;
 }
 
 export default function LoginPage() {
@@ -26,29 +26,20 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const message = searchParams.get("message");
+  const { login } = useAuth();
 
   // Show success message if redirected from signup
   useEffect(() => {
     if (message === "signup_success") {
       setError("");
-      alert("🎉 Account created successfully! Please login.");
     }
   }, [message]);
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
-  setError("");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-<<<<<<< Updated upstream
-  try {
-    const response = await axios.post(
-      "http://localhost:9999/api/auth/Login",
-      { email, password },
-      {
-        withCredentials: true, 
-        headers: { "Content-Type": "application/json" },
-=======
     try {
       const response = await fetch("http://localhost:9999/api/auth/Login", {
         method: "POST",
@@ -60,46 +51,62 @@ const handleSubmit = async (e: React.FormEvent) => {
       });
 
       const result: LoginResponse = await response.json();
+
       if (!response.ok || result.error) {
         setError(result.message || "Login failed. Please try again.");
         return;
->>>>>>> Stashed changes
       }
-    );
 
-    const result: LoginResponse = response.data;
+      const { user, token } = result.data || {};
 
-    if (!result.success) {
-      setError(result.message || "Login failed. Please try again.");
-      return;
+      if (!user) {
+        setError("No user data received from server.");
+        return;
+      }
+
+      // Store token and user data
+      if (token) {
+        localStorage.setItem("token", token);
+      }
+
+      // Normalize user data to ensure `name` property exists
+      const normalizedUser: User = {
+        ...user,
+        name: user.name || user.fullName || user.email,
+      };
+
+      localStorage.setItem("currentUser", JSON.stringify(normalizedUser));
+      localStorage.setItem("user", JSON.stringify(normalizedUser));
+
+      // Call context login to update auth state
+      try {
+        await login(email, password);
+      } catch (contextError) {
+        console.warn("Context login sync failed:", contextError);
+        // Continue anyway since we've stored data
+      }
+
+      // Redirect based on user role
+      redirectBasedOnRole(user.role);
+    } catch (err: any) {
+      console.error("Login error:", err);
+      setError(err?.message || "An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    const { user, token } = result.data;
-    if (token) {
-      localStorage.setItem("token", token);
-    }
-
-    localStorage.setItem("user", JSON.stringify(user));
-
-    // Redirect based on user role
-    redirectBasedOnRole(user.role);
-  } catch (err: any) {
-    console.error("Login error:", err);
-    setError("An unexpected error occurred. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const redirectBasedOnRole = (role: string) => {
-    console.log(role);
+    console.log("Redirecting user with role:", role);
 
-    switch (role) {
+    switch (role?.toLowerCase()) {
       case "saasowner":
+      case "saaowner":
         router.push("/saasowner/dashboard");
         break;
       case "restaurant_owner":
-        router.push("/restaurant-owners");
+      case "owner":
+        router.push("/restaurant-owners/dashboard");
         break;
       case "manager":
         router.push("/manager/dashboard");
@@ -119,7 +126,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       setError("");
 
       // Implement Google OAuth - this would redirect to your backend OAuth endpoint
-      window.location.href = "http://localhost:3001/api/auth/google";
+      window.location.href = "http://localhost:9999/api/auth/google";
     } catch (err) {
       console.error("Google login error:", err);
       setError("Google login failed. Please try again.");
@@ -135,11 +142,11 @@ const handleSubmit = async (e: React.FormEvent) => {
         <div className="container px-4 mx-auto">
           <div className="max-w-md p-8 mx-auto bg-white shadow-xl rounded-2xl">
             <div className="mb-8 text-center">
-              <h1 className="mb-2 font-serif text-3xl font-bold text-shadow-amber-500">
+              <h1 className="mb-2 font-serif text-3xl font-bold text-amber-600">
                 Welcome Back
               </h1>
               <p className="text-gray-600">
-                Sign in to your RestaurantPro account
+                Sign in to your DineFlow account
               </p>
             </div>
 
@@ -168,7 +175,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                   placeholder="Enter your email"
                   required
                   disabled={loading}
@@ -187,7 +194,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                   placeholder="Enter your password"
                   required
                   disabled={loading}
@@ -219,6 +226,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 variant="secondary"
                 className="flex items-center justify-center w-full gap-3 border border-gray-300 hover:bg-gray-50"
                 disabled={loading}
+                type="button"
               >
                 <FcGoogle size={22} />
                 Continue with Google
@@ -229,8 +237,8 @@ const handleSubmit = async (e: React.FormEvent) => {
               <p className="text-gray-600">
                 Don&apos;t have an account?{" "}
                 <Link
-                  href="/signup"
-                  className="font-medium text-primary-600 hover:text-primary-700"
+                  href="/signUp"
+                  className="font-medium text-amber-600 hover:text-amber-700"
                 >
                   Sign up
                 </Link>

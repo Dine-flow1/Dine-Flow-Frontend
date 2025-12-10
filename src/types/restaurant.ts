@@ -33,6 +33,7 @@ export interface OwnerInfo {
 
 // Menu Item
 export interface MenuItem {
+  id: string;
   _id: string;
   restaurantId: string;
   categoryId: string;

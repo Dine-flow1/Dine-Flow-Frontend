@@ -27,6 +27,49 @@ const UserProfile = ({
   
   const { currentUser, logout } = useAuth();
 
+  // Helper function to get user's display name
+  const getUserDisplayName = () => {
+    if (!currentUser) return 'Guest';
+    
+    // Try to get fullName first
+    if (currentUser.fullName && currentUser.fullName !== 'John Doe') {
+      return currentUser.fullName;
+    }
+    
+    // Try to get first and last name
+    if (currentUser.firstName || currentUser.lastName) {
+      return `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim();
+    }
+    
+    // Try to get displayName
+    if (currentUser.displayName) {
+      return currentUser.displayName;
+    }
+    
+    // Try to get from email (extract part before @)
+    if (currentUser.email) {
+      const emailPart = currentUser.email.split('@')[0];
+      // Capitalize first letter
+      return emailPart.charAt(0).toUpperCase() + emailPart.slice(1);
+    }
+    
+    // Fallback
+    return 'User';
+  };
+
+  // Helper function to get user initials
+  const getUserInitials = () => {
+    const displayName = getUserDisplayName();
+    
+    // Extract initials from the display name
+    return displayName
+      .split(' ')
+      .map((n: any[]) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   // GSAP animations for dropdown
   useEffect(() => {
     if (dropdownRef.current) {
@@ -199,15 +242,6 @@ const UserProfile = ({
     router.push(path);
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'owner': return 'bg-purple-100 text-purple-800';
@@ -233,9 +267,10 @@ const UserProfile = ({
         ref={buttonRef}
         onClick={handleProfileClick}
         className={`relative ${className}`}
+        aria-label={`User profile for ${getUserDisplayName()}`}
       >
         <div className="w-8 h-8 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center text-white font-semibold shadow-sm">
-          {currentUser && getInitials(currentUser.fullName)}
+          {getUserInitials()}
         </div>
       </button>
     );
@@ -253,8 +288,8 @@ const UserProfile = ({
       >
         {/* User Info */}
         <div className="flex flex-col items-end hidden md:flex">
-          <span className="text-sm font-medium text-amber-700 group-hover:text-amber-600 transition-colors">
-            {currentUser?.fullName}
+          <span className="text-sm font-medium text-amber-700 group-hover:text-amber-600 transition-colors truncate max-w-[120px]">
+            {getUserDisplayName()}
           </span>
           <span className="text-xs text-amber-600">
             {currentUser && getRoleLabel(currentUser.role)}
@@ -264,7 +299,7 @@ const UserProfile = ({
         {/* Avatar */}
         <div className="relative">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center text-white font-semibold shadow-md">
-            {currentUser && getInitials(currentUser.fullName)}
+            {getUserInitials()}
           </div>
           <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
         </div>
@@ -277,7 +312,7 @@ const UserProfile = ({
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
+          xmlns="http://www.w3.org/2003/svg"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
@@ -293,16 +328,16 @@ const UserProfile = ({
         <div className="p-4 border-b border-amber-50 bg-gradient-to-r from-amber-50 to-orange-50">
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 flex items-center justify-center text-white font-semibold text-lg shadow-sm">
-              {currentUser && getInitials(currentUser.fullName)}
+              {getUserInitials()}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-amber-800 truncate">
-                {currentUser?.fullName}
+                {getUserDisplayName()}
               </p>
               <p className="text-xs text-amber-600 truncate">
-                {currentUser?.email}
+                {currentUser?.email || 'No email provided'}
               </p>
-              {currentUser && (
+              {currentUser?.role && (
                 <span className={`inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full ${getRoleBadgeColor(currentUser.role)}`}>
                   {getRoleLabel(currentUser.role)}
                 </span>

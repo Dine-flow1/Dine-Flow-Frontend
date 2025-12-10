@@ -30,6 +30,7 @@ interface ApiResponse {
   message?: string;
   user?: any;
   token?: string;
+  success?: boolean;
 }
 
 const Signup = () => {
@@ -49,6 +50,7 @@ const Signup = () => {
   const [isVerified, setIsVerified] = useState(false);
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const formRef = useRef<HTMLDivElement>(null);
   const otpSectionRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -97,7 +99,7 @@ const Signup = () => {
       newErrors.confirmPassword = "Passwords do not match";
 
     if (!formData.phone) newErrors.phone = "Phone is required";
-    else if (!/^\d{10}$/.test(formData.phone))
+    else if (!/^\d{10}$/.test(formData.phone.replace(/\D/g, "")))
       newErrors.phone = "Phone must be 10 digits";
 
     setErrors(newErrors);
@@ -108,8 +110,18 @@ const Signup = () => {
     message: string,
     type: "success" | "error" = "success"
   ) => {
-    // You can replace this with a proper toast notification
-    alert(message);
+    if (type === "success") {
+      setSuccessMessage(message);
+      setApiError("");
+    } else {
+      setApiError(message);
+      setSuccessMessage("");
+    }
+    // Clear message after 5 seconds
+    setTimeout(() => {
+      setSuccessMessage("");
+      setApiError("");
+    }, 5000);
   };
 
   const handleSendOtp = async () => {
@@ -117,6 +129,7 @@ const Signup = () => {
 
     setLoading(true);
     setApiError("");
+    setSuccessMessage("");
 
     try {
       const payload = {
@@ -129,23 +142,17 @@ const Signup = () => {
         role: "customer",
       };
 
-<<<<<<< Updated upstream
-      const response = await fetch(" http://localhost:9999/api/auth/register", {
-=======
       const response = await fetch("http://localhost:9999/api/auth/register", {
->>>>>>> Stashed changes
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
         credentials: "include",
       });
-      console.log(response);
 
-      const result = await response.json();
-      console.log(result);
+      const result: ApiResponse = await response.json();
 
-      if (!response.ok) {
-        setApiError(result.message || "Failed to send OTP");
+      if (!response.ok || result.error) {
+        showAlert(result.message || "Failed to send OTP", "error");
         return;
       }
 
@@ -155,8 +162,11 @@ const Signup = () => {
       // Store email for verification
       localStorage.setItem("otpEmail", formData.email);
     } catch (err) {
-      console.error(err);
-      setApiError("Something went wrong while sending OTP");
+      console.error("Error sending OTP:", err);
+      showAlert(
+        "Something went wrong while sending OTP. Please try again.",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
@@ -169,8 +179,8 @@ const Signup = () => {
     try {
       const email = localStorage.getItem("otpEmail");
 
-      if (!otp) {
-        setApiError("Enter a valid OTP");
+      if (!otp || otp.trim() === "") {
+        showAlert("Please enter a valid OTP", "error");
         setLoading(false);
         return;
       }
@@ -182,24 +192,24 @@ const Signup = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email,
-            otp: parseInt(otp, 10),
+            otp: otp.trim(), // Send as string, not parseInt
           }),
           credentials: "include",
         }
       );
 
-      const result = await response.json();
+      const result: ApiResponse = await response.json();
 
-      if (!response.ok) {
-        setApiError(result.message || "Invalid OTP");
+      if (!response.ok || result.error) {
+        showAlert(result.message || "Invalid OTP", "error");
         return;
       }
 
       setIsVerified(true);
       showAlert("OTP Verified Successfully!");
     } catch (err) {
-      console.error(err);
-      setApiError("Failed to verify OTP");
+      console.error("Error verifying OTP:", err);
+      showAlert("Failed to verify OTP. Please try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -213,15 +223,27 @@ const Signup = () => {
       return;
     }
 
-    showAlert("Account created successfully! Redirecting...");
+    // Store user data for login redirect
+    localStorage.setItem(
+      "pendingUser",
+      JSON.stringify({
+        email: formData.email,
+        password: formData.password,
+      })
+    );
 
-    setTimeout(() => router.push("/login"), 1500);
+    showAlert("Account created successfully! Redirecting to login...");
+
+    setTimeout(() => {
+      router.push("/login?message=signup_success");
+      router.refresh();
+    }, 1500);
   };
 
   return (
     <>
       <Navbar />
-      <div className="min-h-screen px-10 py-12 justify-items-center bg-linear-to-br from-blue-50 to-amber-450">
+      <div className="min-h-screen px-10 py-12 bg-gradient-to-br from-blue-50 to-amber-50">
         <div
           ref={formRef}
           className="max-w-2xl px-3 mx-auto overflow-hidden bg-white shadow-xl rounded-2xl"
@@ -235,8 +257,14 @@ const Signup = () => {
             />
 
             {apiError && (
-              <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 border border-red-200 rounded-lg">
+              <div className="p-4 mb-4 text-sm text-red-700 bg-red-100 border border-red-300 rounded-lg animate-pulse">
                 {apiError}
+              </div>
+            )}
+
+            {successMessage && (
+              <div className="p-4 mb-4 text-sm text-green-700 bg-green-100 border border-green-300 rounded-lg animate-pulse">
+                {successMessage}
               </div>
             )}
 
@@ -257,7 +285,7 @@ const Signup = () => {
                     onChange={handleChange}
                     error={errors.name}
                     placeholder="Enter your full name"
-                    disabled={loading}
+                    disabled={loading || isOtpSent}
                   />
                   <InputField
                     label="Email"
@@ -275,7 +303,7 @@ const Signup = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     error={errors.phone}
-                    placeholder="Enter your phone"
+                    placeholder="Enter your phone (10 digits)"
                     disabled={loading || isOtpSent}
                   />
 
@@ -286,8 +314,8 @@ const Signup = () => {
                     value={formData.password}
                     onChange={handleChange}
                     error={errors.password}
-                    placeholder="Create password"
-                    disabled={loading}
+                    placeholder="Create password (min 6 chars)"
+                    disabled={loading || isOtpSent}
                   />
                   <InputField
                     label="Confirm Password"
@@ -297,7 +325,7 @@ const Signup = () => {
                     onChange={handleChange}
                     error={errors.confirmPassword}
                     placeholder="Confirm your password"
-                    disabled={loading}
+                    disabled={loading || isOtpSent}
                   />
                 </div>
               </FadeInAnimation>
@@ -326,7 +354,14 @@ const Signup = () => {
                       className="w-full py-4 text-lg"
                       disabled={loading}
                     >
-                      {loading ? "Sending OTP..." : "Send OTP"}
+                      {loading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Sending OTP...
+                        </span>
+                      ) : (
+                        "Send OTP"
+                      )}
                     </Button>
                   ) : (
                     <Button
@@ -335,7 +370,14 @@ const Signup = () => {
                       disabled={!isVerified || loading}
                       className="w-full py-4 text-lg"
                     >
-                      {loading ? "Creating Account..." : "Complete Signup"}
+                      {loading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Creating Account...
+                        </span>
+                      ) : (
+                        "Complete Signup"
+                      )}
                     </Button>
                   )}
 
@@ -344,20 +386,20 @@ const Signup = () => {
                       Already have an account?{" "}
                       <Link
                         href="/login"
-                        className="font-medium text-blue-600 hover:text-blue-700"
+                        className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
                       >
                         Sign in
                       </Link>
                     </p>
                   </div>
-                </div>
-              </FadeInAnimation>
-            </form>
-          </div>
-        </div>
-      </div>
+                </div>             
+              </FadeInAnimation>             
+            </form> 
+          </div>   
+        </div>      
+      </div>     
       <Footer />
-    </>
+    </>    
   );
 };
 

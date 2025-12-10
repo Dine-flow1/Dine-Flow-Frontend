@@ -11,12 +11,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For demo, accept any 6-digit OTP
-    const isValidOTP = /^\d{6}$/.test(otp);
+    // Convert OTP to string and trim whitespace
+    const otpString = String(otp).trim();
+
+    // For demo, accept any 4-6 digit OTP
+    const isValidOTP = /^\d{4,6}$/.test(otpString);
 
     if (!isValidOTP) {
       return NextResponse.json(
-        { error: true, message: "Invalid OTP. Please enter a 6-digit code." },
+        { error: true, message: "Invalid OTP. Please enter a 4-6 digit code." },
         { status: 400 }
       );
     }
@@ -25,7 +28,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       error: false,
-      message: "OTP verified successfully"
+      message: "OTP verified successfully",
+      success: true
     });
 
   } catch (error) {
