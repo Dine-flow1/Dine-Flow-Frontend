@@ -33,6 +33,15 @@ export interface OwnerInfo {
 
 // Menu Item
 export interface MenuItem {
+  isVegetarian: any;
+  isSpicy: any;
+  isVegan: any;
+  originalPrice: any;
+  reviewCount: number;
+  calories: any;
+  prepTime: any;
+  availability: boolean;
+  type: string;
   id: string;
   _id: string;
   restaurantId: string;
@@ -80,6 +89,10 @@ export interface MenuCategory {
 
 // Restaurant
 export interface RestaurantData {
+  reviewCount: string;
+  priceRange: string;
+  phone: string;
+  name: ReactNode;
   _id: string;
   restaurantName: string;
   restaurantType: string;
