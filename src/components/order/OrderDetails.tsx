@@ -5,7 +5,7 @@ import OrderItem from './OrderItem';
 import OrderTracking from './Ordertracking';
 import DeliveryInfo from './DeliveryInfo';
 import OrderActions from './OrderActions';
-import { OrderDetails as OrderDetailsType, OrderItemType, OrderAddress, DeliveryBoy } from '../../types/order';
+import { OrderDetails as OrderDetailsType, OrderAddress, DeliveryBoy } from '../../types/order';
 import Navbar from '../ui/Navbar'; 
 import Footer from '../ui/Footer';  
 
@@ -18,7 +18,6 @@ const OrderDetails = ({ orderId }: OrderDetailsProps) => {
   const [loading, setLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Sample order data
   const sampleOrder: OrderDetailsType = {
     id: orderId || '1',
     orderNumber: 'ORD-784239',
@@ -82,7 +81,6 @@ const OrderDetails = ({ orderId }: OrderDetailsProps) => {
   };
 
   useEffect(() => {
-    // Simulate API call
     setTimeout(() => {
       setOrder(sampleOrder);
       setLoading(false);
@@ -134,7 +132,7 @@ const OrderDetails = ({ orderId }: OrderDetailsProps) => {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-50 pt-16"> {/* Added pt-16 for navbar spacing */}
+      <div className="min-h-screen bg-gray-50 pt-16">
         <div className="py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Header */}
@@ -146,14 +144,12 @@ const OrderDetails = ({ orderId }: OrderDetailsProps) => {
             <div ref={containerRef} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Left Column - Order Items & Tracking */}
               <div className="lg:col-span-2 space-y-6">
-                {/* Order Tracking */}
                 <OrderTracking 
                   status={order.status} 
                   orderTime={order.orderTime}
                   estimatedDelivery={order.estimatedDelivery}
                 />
 
-                {/* Order Items */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                   <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
                     <h2 className="text-lg font-semibold text-gray-900">Order Items</h2>
@@ -169,7 +165,6 @@ const OrderDetails = ({ orderId }: OrderDetailsProps) => {
                   </div>
                 </div>
 
-                {/* Order Summary */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Summary</h3>
                   <div className="space-y-3">
@@ -193,7 +188,6 @@ const OrderDetails = ({ orderId }: OrderDetailsProps) => {
                     </div>
                   </div>
 
-                  {/* Payment Information */}
                   <div className="mt-6 pt-6 border-t border-gray-200">
                     <h4 className="font-semibold text-gray-900 mb-3">Payment Information</h4>
                     <div className="grid grid-cols-2 gap-4 text-sm">
@@ -217,7 +211,6 @@ const OrderDetails = ({ orderId }: OrderDetailsProps) => {
                 </div>
               </div>
 
-              {/* Right Column - Delivery Info & Actions */}
               <div className="space-y-6">
                 <DeliveryInfo 
                   address={order.address}

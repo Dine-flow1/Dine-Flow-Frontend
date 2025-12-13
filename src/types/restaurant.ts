@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 // Owner / User
 export interface OwnerInfo {
   _id: string;

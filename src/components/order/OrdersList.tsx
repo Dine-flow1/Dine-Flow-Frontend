@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { OrderSummary } from '../../types/order';
-import OrderCard from './OrderCard';
+import OrderCard from './Ordercard';
 
 const OrdersList = () => {
   const [orders, setOrders] = useState<OrderSummary[]>([]);
@@ -66,7 +66,6 @@ const OrdersList = () => {
     : orders.filter(order => order.status === filter);
 
   const handleViewDetails = (orderId: string) => {
-    // Navigate to order details page
     window.location.href = `/order/${orderId}`;
   };
 
@@ -83,7 +82,6 @@ const OrdersList = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      {/* Filter Tabs */}
       <div className="flex space-x-1 bg-white rounded-lg p-1 shadow-sm border border-gray-200 mb-6">
         {[
           { key: 'all', label: 'All Orders' },
@@ -106,7 +104,6 @@ const OrdersList = () => {
         ))}
       </div>
 
-      {/* Orders List */}
       <div className="space-y-4">
         {filteredOrders.map((order) => (
           <OrderCard 
@@ -118,7 +115,6 @@ const OrdersList = () => {
         ))}
       </div>
 
-      {/* Empty State */}
       {filteredOrders.length === 0 && (
         <div className="text-center py-12">
           <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -131,7 +127,10 @@ const OrdersList = () => {
               : `No ${filter} orders found.`
             }
           </p>
-          <button className="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-200">
+          <button 
+            onClick={() => window.location.href = '/menu'}
+            className="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-200"
+          >
             Browse Menu
           </button>
         </div>

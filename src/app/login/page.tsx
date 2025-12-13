@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -7,15 +8,16 @@ import Footer from "../../components/ui/Footer";
 import Button from "../../components/ui/Buttons";
 import { FcGoogle } from "react-icons/fc";
 import { User, useAuth } from "../../Context/AuthContext";
+import axios, { AxiosError } from "axios";
 
 interface LoginResponse {
+  success?: boolean;
   error?: boolean;
+  message?: string;
   data?: {
-    user: User;
+    user?: User;
     token?: string;
   };
-  message?: string;
-  success?: boolean;
 }
 
 export default function LoginPage() {
@@ -28,6 +30,8 @@ export default function LoginPage() {
   const message = searchParams.get("message");
   const { login } = useAuth();
 
+  const auth = useAuth();
+
   // Show success message if redirected from signup
   useEffect(() => {
     if (message === "signup_success") {
@@ -35,73 +39,9 @@ export default function LoginPage() {
     }
   }, [message]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      const response = await fetch("http://localhost:9999/api/auth/Login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-        credentials: "include",
-      });
-
-      const result: LoginResponse = await response.json();
-
-      if (!response.ok || result.error) {
-        setError(result.message || "Login failed. Please try again.");
-        return;
-      }
-
-      const { user, token } = result.data || {};
-
-      if (!user) {
-        setError("No user data received from server.");
-        return;
-      }
-
-      // Store token and user data
-      if (token) {
-        localStorage.setItem("token", token);
-      }
-
-      // Normalize user data to ensure `name` property exists
-      const normalizedUser: User = {
-        ...user,
-        name: user.name || user.fullName || user.email,
-      };
-
-      localStorage.setItem("currentUser", JSON.stringify(normalizedUser));
-      localStorage.setItem("user", JSON.stringify(normalizedUser));
-
-      // Call context login to update auth state
-      try {
-        await login(email, password);
-      } catch (contextError) {
-        console.warn("Context login sync failed:", contextError);
-        // Continue anyway since we've stored data
-      }
-
-      // Redirect based on user role
-      redirectBasedOnRole(user.role);
-    } catch (err: any) {
-      console.error("Login error:", err);
-      setError(err?.message || "An unexpected error occurred. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const redirectBasedOnRole = (role: string) => {
-    console.log("Redirecting user with role:", role);
-
+  const redirectBasedOnRole = (role?: string) => {
     switch (role?.toLowerCase()) {
       case "saasowner":
-      case "saaowner":
         router.push("/saasowner/dashboard");
         break;
       case "restaurant_owner":
@@ -112,11 +52,70 @@ export default function LoginPage() {
         router.push("/manager/dashboard");
         break;
       case "customer":
-        router.push("/");
-        break;
+      case "user":
       default:
         router.push("/");
         break;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const axiosResponse = await axios.post<LoginResponse>(
+        "http://localhost:9999/api/auth/Login",
+        { email, password },
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      const result = axiosResponse.data;
+
+      if (!result || result.error || !result.success) {
+        setError(result?.message || "Login failed. Please try again.");
+        return;
+      }
+
+      const user = result.data?.user;
+      const token = result.data?.token;
+
+      if (token) {
+        localStorage.setItem("token", token);
+      }
+
+      if (user) {
+        // Normalize role name fallback
+        const normalizedUser = { ...user, role: user.role || "customer", name: user.name || user.email };
+        localStorage.setItem("currentUser", JSON.stringify(normalizedUser));
+
+        // Update AuthContext if available
+        if (auth?.setCurrentUser) {
+          try {
+            auth.setCurrentUser(normalizedUser);
+          } catch {
+            // ignore
+          }
+        }
+      }
+
+      // Redirect based on role
+      redirectBasedOnRole(user?.role || "customer");
+    } catch (err) {
+      console.error("Login error:", err);
+      if (axios.isAxiosError(err)) {
+        const axErr = err as AxiosError<any>;
+        const msg = axErr.response?.data?.message || axErr.message || "Login failed. Please try again.";
+        setError(msg);
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -145,9 +144,7 @@ export default function LoginPage() {
               <h1 className="mb-2 font-serif text-3xl font-bold text-amber-600">
                 Welcome Back
               </h1>
-              <p className="text-gray-600">
-                Sign in to your DineFlow account
-              </p>
+              <p className="text-gray-600">Sign in to your DineFlow account</p>
             </div>
 
             {error && (
@@ -237,7 +234,7 @@ export default function LoginPage() {
               <p className="text-gray-600">
                 Don&apos;t have an account?{" "}
                 <Link
-                  href="/signUp"
+                  href="/signup"
                   className="font-medium text-amber-600 hover:text-amber-700"
                 >
                   Sign up

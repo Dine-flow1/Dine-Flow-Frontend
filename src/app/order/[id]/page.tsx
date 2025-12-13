@@ -1,3 +1,4 @@
+// REMOVED "use client" - Server Component required for generateMetadata
 import { Metadata } from 'next';
 import OrderDetails from '../../../components/order/OrderDetails';
 

@@ -17,6 +17,7 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
+  setCurrentUser: any;
   currentUser: User | null;
   login: (email: string, password: string) => Promise<User>;
   register: (userData: any) => Promise<User>;
@@ -131,6 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value = {
     user: currentUser,
+    setCurrentUser,
     currentUser,
     login,
     register,

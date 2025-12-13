@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -128,13 +129,10 @@ export default function RestaurantDetail() {
         {/* Menu Section */}
         <div>
           <h3 className="mb-4 text-xl font-semibold text-gray-800">Menu</h3>
-
           {menuItems && menuItems.length > 0 ? (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {menuItems.map((item) => (
-                <MenuItemCard key={item._id || item.id} item={item} restaurantId={""} restaurantName={""} />
-              ))}
-            </div>
+            menuItems.map((item) => (
+              <MenuItemCard key={item._id || item.id} item={item} restaurantId={restaurant._id || restaurant.id || ""} restaurantName={restaurant.name || ""} />
+            ))
           ) : (
             <div className="p-8 text-center bg-white rounded-lg shadow-md">
               <p className="text-gray-500">

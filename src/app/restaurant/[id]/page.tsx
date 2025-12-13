@@ -475,7 +475,7 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
                   
                 </div>
 
-                <TableBooking restaurantId={restaurant._id} restaurantName={restaurant.name} />
+                <TableBooking restaurantId={restaurant._id} restaurantName={String(restaurant.name)} />
 
                 {/* Booking Benefits */}
                 <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">

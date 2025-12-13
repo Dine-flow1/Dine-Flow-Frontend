@@ -111,11 +111,12 @@ export default function MenuItemCard({
         <img
           src={item.image || '/placeholder-restaurant.jpg'}
           alt={item.name || 'Menu item'}
-          className="object-cover w-full h-full"
+          className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).src = '/placeholder-restaurant.jpg';
           }}
         />
+
 
         {/* Favorite Button */}
         <button

@@ -1,7 +1,6 @@
 'use client';
-
 import React, { useState, useEffect, useRef } from 'react';
-import { useCart } from '@/context/CartContext';
+import { useCart } from '../../Context/CartContext';
 import Link from 'next/link';
 import { X, ShoppingCart, ChevronRight, Minus, Plus, Trash2 } from 'lucide-react';
 import gsap from 'gsap';
@@ -15,7 +14,6 @@ export const Cart = () => {
   const {
     items,
     totalQuantity,
-    totalAmount,
     restaurantName,
     removeItem,
     updateQuantity,
@@ -28,7 +26,6 @@ export const Cart = () => {
     setIsOpen(!isOpen);
   };
 
-  // GSAP animations
   useEffect(() => {
     if (isOpen) {
       gsap.to(overlayRef.current, {
@@ -56,7 +53,6 @@ export const Cart = () => {
     }
   }, [isOpen]);
 
-  // Cart button animation when items change
   useEffect(() => {
     if (cartButtonRef.current) {
       gsap.to(cartButtonRef.current, {
@@ -96,20 +92,17 @@ export const Cart = () => {
 
   return (
     <>
-      {/* Overlay */}
       <div
         ref={overlayRef}
         onClick={toggleCart}
         className="fixed inset-0 bg-black bg-opacity-50 z-40 opacity-0"
       />
 
-      {/* Cart Sidebar */}
       <div
         ref={cartRef}
         className="fixed top-0 right-0 h-full w-full sm:w-96 bg-white z-50 shadow-2xl transform translate-x-0 opacity-100"
       >
         <div className="flex flex-col h-full">
-          {/* Header */}
           <div className="flex items-center justify-between p-6 border-b">
             <div>
               <h2 className="text-2xl font-bold text-gray-800">Your Cart</h2>
@@ -127,7 +120,6 @@ export const Cart = () => {
             </button>
           </div>
 
-          {/* Cart Items */}
           <div className="flex-1 overflow-y-auto p-6">
             {items.length === 0 ? (
               <div className="text-center py-12">
@@ -145,12 +137,10 @@ export const Cart = () => {
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         <div className="flex items-center gap-3">
-                          {item.image && typeof item.image === 'string' && (
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="w-16 h-16 rounded-lg object-cover"
-                            />
+                          {typeof item.image === 'string' && (
+                            <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-600 rounded-lg flex items-center justify-center text-white text-2xl">
+                              {item.image}
+                            </div>
                           )}
                           <div>
                             <h3 className="font-semibold text-gray-800">{item.name}</h3>
@@ -173,7 +163,7 @@ export const Cart = () => {
                       <div className="flex items-center gap-2">
                         <div className="flex items-center gap-2 bg-white rounded-full px-3 py-1 border">
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
                             className="text-gray-500 hover:text-blue-600"
                           >
                             <Minus size={16} />
@@ -216,7 +206,6 @@ export const Cart = () => {
             )}
           </div>
 
-          {/* Footer */}
           <div className="border-t p-6 bg-gray-50">
             {items.length > 0 && (
               <>
