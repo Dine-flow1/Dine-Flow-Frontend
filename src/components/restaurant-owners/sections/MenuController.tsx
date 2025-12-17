@@ -1,261 +1,375 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { gsap } from 'gsap';
-import { Plus, Search, Edit, Trash2, Tag, Clock, DollarSign } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { gsap } from "gsap";
+import { Edit, Trash2 } from "lucide-react";
 
-interface MenuItem {
-  id: number;
+import {
+  addMenuItem,
+  getAllMenuItems,
+  deleteMenuItem,
+  updateMenuItem,
+} from "@/app/services/Restaurant/Menu/menuItemService";
+
+import {
+  addCategory,
+  getAllCategories,
+  deleteCategory,
+  updateCategory,
+} from "@/app/services/Restaurant/Menu/menuCategoryService";
+
+/* ================= TYPES ================= */
+
+interface Category {
+  id: string;
   name: string;
-  description: string;
-  price: number;
-  category: string;
-  image: string;
-  available: boolean;
-  preparationTime: number;
-  ingredients: string[];
+  description?: string;
 }
 
-export function MenuController() {
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([
-    {
-      id: 1,
-      name: 'Grilled Salmon',
-      description: 'Fresh salmon with lemon butter sauce',
-      price: 24.99,
-      category: 'Main Course',
-      image: '/placeholder-dish.jpg',
-      available: true,
-      preparationTime: 20,
-      ingredients: ['Salmon', 'Lemon', 'Butter', 'Herbs']
-    },
-    {
-      id: 2,
-      name: 'Caesar Salad',
-      description: 'Classic Caesar with homemade dressing',
-      price: 12.99,
-      category: 'Salads',
-      image: '/placeholder-dish.jpg',
-      available: true,
-      preparationTime: 10,
-      ingredients: ['Romaine', 'Croutons', 'Parmesan', 'Dressing']
-    },
-  ]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [newItem, setNewItem] = useState({
-    name: '',
-    description: '',
-    price: '',
-    category: '',
-    preparationTime: ''
+interface MenuItem {
+  id: string;
+  categoryId: string;
+  name: string;
+  description: string;
+  price: number | string;
+  isVeg: boolean;
+  spiceLevel: "Mild" | "Medium" | "Spicy";
+  available: boolean;
+  image?: File | string;
+}
+
+/* ================= CONSTANT ================= */
+
+const RESTAURANT_ID = "693d30df2da3de861d4648f9";
+
+/* ================= COMPONENT ================= */
+
+export default function MenuController() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
+  const [showItemForm, setShowItemForm] = useState(false);
+
+  const [editingCategory, setEditingCategory] = useState(false);
+  const [editingItem, setEditingItem] = useState(false);
+
+  const [newCategory, setNewCategory] = useState({
+    id: "",
+    name: "",
+    description: "",
   });
+
+  const [newItem, setNewItem] = useState<MenuItem>({
+    id: "",
+    categoryId: "",
+    name: "",
+    description: "",
+    price: "",
+    isVeg: true,
+    spiceLevel: "Medium",
+    available: true,
+    image: "",
+  });
+
+  /* ================= FETCH ================= */
 
   useEffect(() => {
-    gsap.from('.menu-item-card', {
-      duration: 0.5,
-      y: 20,
-      opacity: 1,
-      stagger: 0.1,
-      ease: 'power3.out'
-    });
+    fetchCategories();
+    fetchMenuItems();
   }, []);
 
-  const categories = ['all', 'Main Course', 'Appetizers', 'Salads', 'Desserts', 'Drinks'];
+  const fetchCategories = async () => {
+    const data = await getAllCategories();
+    setCategories(
+      data.map((c: any) => ({ ...c, id: c._id }))
+    );
+  };
 
-  const filteredItems = menuItems.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const fetchMenuItems = async () => {
+    const data = await getAllMenuItems();
+    setMenuItems(
+      data.map((i: any) => ({ ...i, id: i._id }))
+    );
+  };
 
-  const handleAddItem = () => {
-    if (newItem.name && newItem.description && newItem.price && newItem.category) {
-      const newMenuItem: MenuItem = {
-        id: menuItems.length + 1,
-        name: newItem.name,
-        description: newItem.description,
-        price: parseFloat(newItem.price),
-        category: newItem.category,
-        image: '/placeholder-dish.jpg',
-        available: true,
-        preparationTime: parseInt(newItem.preparationTime) || 15,
-        ingredients: []
-      };
-      setMenuItems([...menuItems, newMenuItem]);
-      setNewItem({ name: '', description: '', price: '', category: '', preparationTime: '' });
-      setShowAddForm(false);
+  /* ================= ANIMATION ================= */
+
+  useEffect(() => {
+    if (!menuItems.length) return;
+    gsap.from(".menu-item-card", {
+      opacity: 0,
+      y: 20,
+      stagger: 0.1,
+      duration: 0.4,
+    });
+  }, [menuItems]);
+
+  /* ================= CATEGORY ================= */
+
+  const saveCategory = async () => {
+    if (!newCategory.name) return alert("Category name required");
+
+    if (editingCategory) {
+      const res = await updateCategory(newCategory.id, newCategory);
+      setCategories((prev) =>
+        prev.map((c) =>
+          c.id === res.data._id ? { ...res.data, id: res.data._id } : c
+        )
+      );
+    } else {
+      const res = await addCategory({
+        restaurantId: RESTAURANT_ID,
+        name: newCategory.name,
+        description: newCategory.description,
+      });
+      setCategories((prev) => [
+        ...prev,
+        { ...res.data, id: res.data._id },
+      ]);
     }
+
+    setShowCategoryForm(false);
+    setEditingCategory(false);
+    setNewCategory({ id: "", name: "", description: "" });
   };
 
-  const toggleAvailability = (id: number) => {
-    setMenuItems(menuItems.map(item =>
-      item.id === id ? { ...item, available: !item.available } : item
-    ));
+  const deleteCat = async (id: string) => {
+    await deleteCategory(id);
+    setCategories((prev) => prev.filter((c) => c.id !== id));
+    setMenuItems((prev) => prev.filter((i) => i.categoryId !== id));
   };
+
+  /* ================= MENU ITEM ================= */
+
+  const saveItem = async () => {
+    if (!newItem.name || !newItem.price || !newItem.categoryId)
+      return alert("Fill all required fields");
+
+    const payload = {
+      restaurantId: RESTAURANT_ID,
+      categoryId: newItem.categoryId,
+      name: newItem.name,
+      description: newItem.description,
+      price: Number(newItem.price),
+      isVeg: newItem.isVeg,
+      spiceLevel: newItem.spiceLevel,
+      available: true,
+    };
+
+    if (editingItem) {
+      const res = await updateMenuItem(newItem.id, payload);
+      setMenuItems((prev) =>
+        prev.map((i) =>
+          i.id === res.data._id ? { ...res.data, id: res.data._id } : i
+        )
+      );
+    } else {
+      const res = await addMenuItem(payload);
+      setMenuItems((prev) => [
+        ...prev,
+        { ...res.data, id: res.data._id },
+      ]);
+    }
+
+    setShowItemForm(false);
+    setEditingItem(false);
+    setNewItem({
+      id: "",
+      categoryId: "",
+      name: "",
+      description: "",
+      price: "",
+      isVeg: true,
+      spiceLevel: "Medium",
+      available: true,
+      image: "",
+    });
+  };
+
+  const deleteItem = async (id: string) => {
+    await deleteMenuItem(id);
+    setMenuItems((prev) => prev.filter((i) => i.id !== id));
+  };
+
+  /* ================= UI ================= */
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Full Menu Controller</h1>
-          <p className="text-gray-600">Manage your restaurant menu items</p>
+    <div className="p-6">
+      {/* HEADER */}
+      <div className="flex justify-between mb-6">
+        <h1 className="text-2xl font-bold">Menu Controller</h1>
+        <div className="flex gap-3">
+          <button
+            onClick={() => {
+              setShowCategoryForm(true);
+              setEditingCategory(false);
+            }}
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+          >
+            + Category
+          </button>
+          <button
+            onClick={() => {
+              setShowItemForm(true);
+              setEditingItem(false);
+            }}
+            className="bg-green-600 text-white px-4 py-2 rounded"
+          >
+            + Item
+          </button>
         </div>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-green-700 transition-colors"
-        >
-          <Plus className="h-5 w-5" />
-          <span>Add Menu Item</span>
-        </button>
       </div>
 
-      {showAddForm && (
-        <div className="bg-white p-6 rounded-xl shadow-sm mb-6 animate-slideDown">
-          <h3 className="text-lg font-semibold mb-4">Add New Menu Item</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              type="text"
-              placeholder="Item Name"
-              value={newItem.name}
-              onChange={(e) => setNewItem({...newItem, name: e.target.value})}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-            <select
-              value={newItem.category}
-              onChange={(e) => setNewItem({...newItem, category: e.target.value})}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            >
-              <option value="">Select Category</option>
-              {categories.slice(1).map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-            <input
-              type="number"
-              placeholder="Price ($)"
-              value={newItem.price}
-              onChange={(e) => setNewItem({...newItem, price: e.target.value})}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-            <input
-              type="number"
-              placeholder="Preparation Time (minutes)"
-              value={newItem.preparationTime}
-              onChange={(e) => setNewItem({...newItem, preparationTime: e.target.value})}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-            <textarea
-              placeholder="Description"
-              value={newItem.description}
-              onChange={(e) => setNewItem({...newItem, description: e.target.value})}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent md:col-span-2"
-              rows={3}
-            />
-          </div>
-          <div className="flex justify-end space-x-3 mt-4">
-            <button
-              onClick={() => setShowAddForm(false)}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleAddItem}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-            >
-              Add Item
-            </button>
-          </div>
+      {/* CATEGORY FORM */}
+      {showCategoryForm && (
+        <div className="bg-white p-4 rounded shadow mb-6">
+          <input
+            placeholder="Category Name"
+            className="border w-full p-2 mb-2"
+            value={newCategory.name}
+            onChange={(e) =>
+              setNewCategory({ ...newCategory, name: e.target.value })
+            }
+          />
+          <input
+            placeholder="Description"
+            className="border w-full p-2 mb-2"
+            value={newCategory.description}
+            onChange={(e) =>
+              setNewCategory({
+                ...newCategory,
+                description: e.target.value,
+              })
+            }
+          />
+          <button
+            onClick={saveCategory}
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+          >
+            Save Category
+          </button>
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 bg-white p-4 rounded-xl shadow-sm">
-        <div className="relative flex-1 mb-4 md:mb-0 md:mr-4">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+      {/* ITEM FORM */}
+      {showItemForm && (
+        <div className="bg-white p-4 rounded shadow mb-6">
           <input
-            type="search"
-            placeholder="Search menu items..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            placeholder="Item Name"
+            className="border w-full p-2 mb-2"
+            value={newItem.name}
+            onChange={(e) =>
+              setNewItem({ ...newItem, name: e.target.value })
+            }
           />
+
+          <textarea
+            placeholder="Description"
+            className="border w-full p-2 mb-2"
+            value={newItem.description}
+            onChange={(e) =>
+              setNewItem({ ...newItem, description: e.target.value })
+            }
+          />
+
+          <input
+            type="number"
+            placeholder="Price"
+            className="border w-full p-2 mb-2"
+            value={newItem.price}
+            onChange={(e) =>
+              setNewItem({ ...newItem, price: e.target.value })
+            }
+          />
+
+          <select
+            className="border w-full p-2 mb-2"
+            value={newItem.categoryId}
+            onChange={(e) =>
+              setNewItem({ ...newItem, categoryId: e.target.value })
+            }
+          >
+            <option value="">Select Category</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+
+          {/* VEG / NON VEG */}
+          <div className="flex gap-4 mb-2">
+            <label>
+              <input
+                type="radio"
+                checked={newItem.isVeg}
+                onChange={() =>
+                  setNewItem({ ...newItem, isVeg: true })
+                }
+              />{" "}
+              Veg 🌱
+            </label>
+            <label>
+              <input
+                type="radio"
+                checked={!newItem.isVeg}
+                onChange={() =>
+                  setNewItem({ ...newItem, isVeg: false })
+                }
+              />{" "}
+              Non-Veg 🍗
+            </label>
+          </div>
+
+          <select
+            className="border w-full p-2 mb-3"
+            value={newItem.spiceLevel}
+            onChange={(e) =>
+              setNewItem({
+                ...newItem,
+                spiceLevel: e.target.value as any,
+              })
+            }
+          >
+            <option value="Mild">Mild</option>
+            <option value="Medium">Medium</option>
+            <option value="Spicy">Spicy</option>
+          </select>
+
+          <button
+            onClick={saveItem}
+            className="bg-green-600 text-white px-4 py-2 rounded"
+          >
+            Save Item
+          </button>
         </div>
-        <div className="flex space-x-2 overflow-x-auto">
-          {categories.map(category => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded-lg whitespace-nowrap ${
-                selectedCategory === category
-                  ? 'bg-green-100 text-green-800 border border-green-300'
-                  : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-              }`}
-            >
-              {category.charAt(0).toUpperCase() + category.slice(1)}
-            </button>
-          ))}
-        </div>
-      </div>
+      )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredItems.map(item => (
-          <div key={item.id} className="menu-item-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="relative h-48 bg-gradient-to-r from-green-50 to-blue-50">
-              <div className="absolute top-4 right-4">
-                <button
-                  onClick={() => toggleAvailability(item.id)}
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    item.available
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}
-                >
-                  {item.available ? 'Available' : 'Unavailable'}
-                </button>
-              </div>
-            </div>
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="text-xl font-semibold text-gray-800">{item.name}</h3>
-                <span className="text-lg font-bold text-green-600">${item.price}</span>
-              </div>
-              <p className="text-gray-600 mb-4">{item.description}</p>
-              
-              <div className="flex items-center space-x-4 mb-4">
-                <div className="flex items-center text-gray-500">
-                  <Tag className="h-4 w-4 mr-1" />
-                  <span className="text-sm">{item.category}</span>
-                </div>
-                <div className="flex items-center text-gray-500">
-                  <Clock className="h-4 w-4 mr-1" />
-                  <span className="text-sm">{item.preparationTime} min</span>
-                </div>
-              </div>
+      {/* MENU ITEMS */}
+      <div className="grid md:grid-cols-3 gap-4">
+        {menuItems.map((item) => (
+          <div
+            key={item.id}
+            className="menu-item-card bg-white p-4 rounded shadow"
+          >
+            <h3 className="font-bold">{item.name}</h3>
+            <p className="text-sm">{item.description}</p>
+            <p className="mt-2">₹{item.price}</p>
 
-              {item.ingredients.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Ingredients:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {item.ingredients.map((ingredient, index) => (
-                      <span key={index} className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">
-                        {ingredient}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="flex justify-end space-x-2">
-                <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
-                  <Edit className="h-4 w-4" />
-                </button>
-                <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
+            <div className="flex justify-end gap-3 mt-3">
+              <Edit
+                className="cursor-pointer"
+                onClick={() => {
+                  setNewItem(item);
+                  setEditingItem(true);
+                  setShowItemForm(true);
+                }}
+              />
+              <Trash2
+                className="cursor-pointer text-red-600"
+                onClick={() => deleteItem(item.id)}
+              />
             </div>
           </div>
         ))}
