@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { OrderSummary, OrderHistoryStats } from '../../types/order';
-import OrderCard from '../order/Ordercard';
+import OrderCard from './Ordercard';
 
 interface OrderHistoryProps {
   userId?: string;
@@ -17,7 +17,6 @@ const OrderHistory = ({ userId, showStats = true, compact = false }: OrderHistor
   const [stats, setStats] = useState<OrderHistoryStats | null>(null);
   const router = useRouter();
 
-  // Sample orders with payment methods and status
   const sampleOrders: OrderSummary[] = [
     {
       id: '1',
@@ -128,14 +127,58 @@ const OrderHistory = ({ userId, showStats = true, compact = false }: OrderHistor
 
   return (
     <div className={`${compact ? 'max-w-4xl' : 'max-w-7xl'} mx-auto`}>
-      {/* Statistics Section */}
       {showStats && stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* ... (same stats cards as before) */}
+          <div className="bg-white rounded-xl p-6 border border-gray-200">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                <span className="text-blue-600 text-xl">📦</span>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Total Orders</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalOrders}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-xl p-6 border border-gray-200">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                <span className="text-green-600 text-xl">💰</span>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Total Spent</p>
+                <p className="text-2xl font-bold text-gray-900">${stats.totalSpent.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-xl p-6 border border-gray-200">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center mr-4">
+                <span className="text-amber-600 text-xl">✅</span>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Delivered</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.deliveredOrders}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-xl p-6 border border-gray-200">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                <span className="text-purple-600 text-xl">📊</span>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Avg. Order Value</p>
+                <p className="text-2xl font-bold text-gray-900">${stats.averageOrderValue.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Tabs Section */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
         <div className="flex border-b border-gray-200">
           <button

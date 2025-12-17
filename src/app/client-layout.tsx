@@ -1,12 +1,14 @@
-// src/app/client-layout.tsx
 "use client";
-
-import { AuthProvider } from '../Context/AuthContext';
+import { CartProvider } from "../Context/CartContext";
 
 export default function ClientLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
-  return <AuthProvider>{children}</AuthProvider>;
+}>) {
+  return (
+    <CartProvider>
+      {children}
+    </CartProvider>
+  );
 }

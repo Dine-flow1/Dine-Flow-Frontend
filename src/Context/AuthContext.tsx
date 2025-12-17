@@ -3,14 +3,21 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 
 export interface User {
+  displayName: any;
+  lastName: string;
+  firstName: string;
   _id: string;
   fullName: string;
+  // keep `name` for components that expect `user.name`
+  name?: string;
   email: string;
   role: 'customer' | 'owner' | 'admin';
   restaurantId?: string;
 }
 
 interface AuthContextType {
+  user: User | null;
+  setCurrentUser: any;
   currentUser: User | null;
   login: (email: string, password: string) => Promise<User>;
   register: (userData: any) => Promise<User>;
@@ -37,30 +44,64 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Check if user is logged in from localStorage
-    const user = localStorage.getItem('currentUser');
+    const user = typeof window !== "undefined" ? localStorage.getItem('currentUser') : null;
     if (user) {
       try {
-        setCurrentUser(JSON.parse(user));
+        const parsed = JSON.parse(user);
+        // normalize shape: ensure `name` exists for UI components
+        if (parsed && !parsed.name && parsed.fullName) {
+          parsed.name = parsed.fullName;
+        }
+        setCurrentUser(parsed);
       } catch (error) {
         console.error('Error parsing user data:', error);
         localStorage.removeItem('currentUser');
+        localStorage.removeItem('token');
       }
     }
     setIsInitialized(true);
   }, []);
 
   const login = async (email: string, password: string): Promise<User> => {
-    // Mock login - in real app, call your API
-    const user: User = {
-      _id: 'user_1',
-      fullName: 'John Doe',
-      email: email,
-      role: 'owner',
-      restaurantId: 'rest_1'
-    };
-    setCurrentUser(user);
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    return user;
+    // If an authenticated user already stored, reuse it
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem('currentUser');
+      const storedToken = localStorage.getItem('token');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          // ensure `name` exists
+          if (!parsed.name && parsed.fullName) parsed.name = parsed.fullName;
+          // ensure role defaults to 'customer' when missing
+          parsed.role = parsed.role || 'customer';
+          setCurrentUser(parsed);
+          return parsed;
+        } catch {
+          // fall through to create mock user
+        }
+      }
+
+      // NOTE: replace this with real API call in production
+      const mockUser: User = {
+        _id: 'user_' + Date.now(),
+        fullName: email.split('@')[0],
+        name: email.split('@')[0],
+        email,
+        role: 'customer',
+        displayName: undefined,
+        lastName: '',
+        firstName: ''
+      };
+
+      setCurrentUser(mockUser);
+      localStorage.setItem('currentUser', JSON.stringify(mockUser));
+      // preserve or set token
+      if (!storedToken) localStorage.setItem('token', 'mock-token-' + Date.now());
+      return mockUser;
+    }
+
+    // On server (should not normally reach here in client usage)
+    throw new Error('Login must be called on the client');
   };
 
   const register = async (userData: any): Promise<User> => {
@@ -68,21 +109,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const user: User = {
       _id: `user_${Date.now()}`,
       fullName: userData.fullName,
+      name: userData.fullName,
       email: userData.email,
       role: userData.role || 'customer',
-      restaurantId: userData.restaurantId
+      restaurantId: userData.restaurantId,
+      displayName: undefined,
+      lastName: '',
+      firstName: ''
     };
     setCurrentUser(user);
     localStorage.setItem('currentUser', JSON.stringify(user));
+    // store a token as if returned by API
+    localStorage.setItem('token', 'mock-token-' + Date.now());
     return user;
   };
 
   const logout = () => {
     setCurrentUser(null);
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('token');
   };
 
   const value = {
+    user: currentUser,
+    setCurrentUser,
     currentUser,
     login,
     register,

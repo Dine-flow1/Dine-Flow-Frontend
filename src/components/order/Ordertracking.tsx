@@ -51,7 +51,7 @@ const OrderTracking = ({ status, orderTime, estimatedDelivery }: OrderTrackingPr
     };
 
     updateTime();
-    const interval = setInterval(updateTime, 30000); // Update every 30 seconds
+    const interval = setInterval(updateTime, 30000);
     return () => clearInterval(interval);
   }, [estimatedDelivery]);
 
@@ -74,7 +74,6 @@ const OrderTracking = ({ status, orderTime, estimatedDelivery }: OrderTrackingPr
 
   return (
     <div ref={trackingRef} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">Order Status</h2>
@@ -95,9 +94,7 @@ const OrderTracking = ({ status, orderTime, estimatedDelivery }: OrderTrackingPr
         </div>
       </div>
 
-      {/* Progress Steps */}
       <div className="relative">
-        {/* Progress Line */}
         <div className="absolute left-8 top-4 w-0.5 h-3/4 bg-gray-200 transform -translate-y-1">
           <div 
             className="absolute top-0 left-0 w-0.5 bg-green-500 transition-all duration-1000 ease-out"
@@ -105,7 +102,6 @@ const OrderTracking = ({ status, orderTime, estimatedDelivery }: OrderTrackingPr
           />
         </div>
 
-        {/* Steps */}
         <div className="space-y-8">
           {steps.map((step, index) => {
             const isCompleted = index <= currentStepIndex;
@@ -114,7 +110,6 @@ const OrderTracking = ({ status, orderTime, estimatedDelivery }: OrderTrackingPr
             
             return (
               <div key={step.key} className="flex items-start space-x-4">
-                {/* Step Icon */}
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 relative z-10 transition-all duration-500 ${
                   isCompleted 
                     ? 'bg-green-500 text-white shadow-lg shadow-green-200' 
@@ -124,13 +119,11 @@ const OrderTracking = ({ status, orderTime, estimatedDelivery }: OrderTrackingPr
                 } ${isCurrent ? 'scale-110 ring-4 ring-blue-200 animate-pulse' : ''}`}>
                   <span className="text-lg">{step.icon}</span>
                   
-                  {/* Animated dot for current step */}
                   {isCurrent && status === 'on-the-way' && (
                     <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping" />
                   )}
                 </div>
 
-                {/* Step Content */}
                 <div className="flex-1 min-w-0 pt-1">
                   <p className={`font-semibold transition-colors duration-300 ${
                     isCompleted ? 'text-gray-900' : 
@@ -144,7 +137,6 @@ const OrderTracking = ({ status, orderTime, estimatedDelivery }: OrderTrackingPr
                     {step.description}
                   </p>
                   
-                  {/* Special messages for current step */}
                   {isCurrent && status === 'on-the-way' && timeRemaining && (
                     <p className="text-sm text-blue-600 font-medium mt-2">
                       🚗 Your food will arrive in {timeRemaining}
@@ -158,7 +150,6 @@ const OrderTracking = ({ status, orderTime, estimatedDelivery }: OrderTrackingPr
                   )}
                 </div>
 
-                {/* Checkmark for completed steps */}
                 {isCompleted && (
                   <div className="text-green-500 text-xl mt-1">
                     ✓
@@ -170,7 +161,6 @@ const OrderTracking = ({ status, orderTime, estimatedDelivery }: OrderTrackingPr
         </div>
       </div>
 
-      {/* Order Time Info */}
       <div className="mt-8 pt-6 border-t border-gray-200">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>

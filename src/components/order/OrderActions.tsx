@@ -6,7 +6,7 @@ import {
   showSuccessAlert, 
   showErrorAlert,
   showSuccessToast,
-  showInfoAlert  // ADD THIS IMPORT
+  showInfoAlert
 } from '../../utils/sweetAlert';
 
 interface OrderActionsProps {
@@ -41,9 +41,7 @@ const OrderActions = ({ orderId, status, onOrderUpdate }: OrderActionsProps) => 
     
     setIsCancelling(true);
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
       showSuccessAlert('Order has been cancelled successfully!', 'Order Cancelled');
       onOrderUpdate?.(orderId, 'cancelled');
     } catch (error) {
@@ -58,7 +56,6 @@ const OrderActions = ({ orderId, status, onOrderUpdate }: OrderActionsProps) => 
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
       showSuccessToast('All items added to cart for reorder!');
-      // Redirect to cart or menu page
       setTimeout(() => {
         window.location.href = '/cart';
       }, 2000);
@@ -78,7 +75,6 @@ const OrderActions = ({ orderId, status, onOrderUpdate }: OrderActionsProps) => 
 
   const handleRateOrder = () => {
     showInfoAlert('Redirecting to rating page...', 'Rate Your Order');
-    // In real app: router.push(`/rate-order/${orderId}`);
   };
 
   const handleDownloadReceipt = () => {
@@ -94,7 +90,6 @@ const OrderActions = ({ orderId, status, onOrderUpdate }: OrderActionsProps) => 
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Actions</h3>
       
       <div className="space-y-3">
-        {/* Cancel Order */}
         {canCancel && (
           <button
             onClick={handleCancelOrder}
@@ -115,7 +110,6 @@ const OrderActions = ({ orderId, status, onOrderUpdate }: OrderActionsProps) => 
           </button>
         )}
 
-        {/* Reorder */}
         {canReorder && (
           <button
             onClick={handleReorder}
@@ -136,7 +130,6 @@ const OrderActions = ({ orderId, status, onOrderUpdate }: OrderActionsProps) => 
           </button>
         )}
 
-        {/* Rate Order */}
         {canRate && (
           <button
             onClick={handleRateOrder}
@@ -147,7 +140,6 @@ const OrderActions = ({ orderId, status, onOrderUpdate }: OrderActionsProps) => 
           </button>
         )}
 
-        {/* Get Help */}
         <button
           onClick={handleHelp}
           className="w-full bg-gray-50 border border-gray-200 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-100 hover:border-gray-300 transition-all duration-200 flex items-center justify-center space-x-2"
@@ -156,7 +148,6 @@ const OrderActions = ({ orderId, status, onOrderUpdate }: OrderActionsProps) => 
           <span>Get Help</span>
         </button>
 
-        {/* Download Receipt */}
         <button
           onClick={handleDownloadReceipt}
           className="w-full bg-green-50 border border-green-200 text-green-700 py-3 px-4 rounded-lg font-medium hover:bg-green-100 hover:border-green-300 transition-all duration-200 flex items-center justify-center space-x-2"
@@ -166,7 +157,6 @@ const OrderActions = ({ orderId, status, onOrderUpdate }: OrderActionsProps) => 
         </button>
       </div>
 
-      {/* Quick Support */}
       <div className="mt-6 pt-6 border-t border-gray-200">
         <div className="text-center">
           <p className="text-sm text-gray-600 mb-2">Need immediate help?</p>

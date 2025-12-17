@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
-import { OrderItemType } from './OrderDetails';
+import { OrderItemType } from '../../types/order';
 
 interface OrderItemProps {
   item: OrderItemType;

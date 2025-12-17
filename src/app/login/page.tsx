@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -6,16 +7,17 @@ import Navbar from "../../components/ui/Navbar";
 import Footer from "../../components/ui/Footer";
 import Button from "../../components/ui/Buttons";
 import { FcGoogle } from "react-icons/fc";
-import { User } from "../../Context/AuthContext";
-import axios from "axios";
+import { User, useAuth } from "../../Context/AuthContext";
+import axios, { AxiosError } from "axios";
 
 interface LoginResponse {
+  success?: boolean;
   error?: boolean;
+  message?: string;
   data?: {
-    user: User;
+    user?: User;
     token?: string;
   };
-  message?: string;
 }
 
 export default function LoginPage() {
@@ -26,73 +28,94 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const message = searchParams.get("message");
+  const { login } = useAuth();
+
+  const auth = useAuth();
 
   // Show success message if redirected from signup
   useEffect(() => {
     if (message === "signup_success") {
       setError("");
-      alert("🎉 Account created successfully! Please login.");
     }
   }, [message]);
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
-  setError("");
-
-  try {
-    const response = await axios.post(
-      "http://localhost:9999/api/auth/Login",
-      { email, password },
-      {
-        withCredentials: true, 
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-
-    const result: LoginResponse = response.data;
-
-    if (!result.success) {
-      setError(result.message || "Login failed. Please try again.");
-      return;
-    }
-
-    const { user, token } = result.data;
-    if (token) {
-      localStorage.setItem("token", token);
-    }
-
-    localStorage.setItem("user", JSON.stringify(user));
-
-    // Redirect based on user role
-    redirectBasedOnRole(user.role);
-  } catch (err: any) {
-    console.error("Login error:", err);
-    setError("An unexpected error occurred. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
-
-  const redirectBasedOnRole = (role: string) => {
-    console.log(role);
-
-    switch (role) {
+  const redirectBasedOnRole = (role?: string) => {
+    switch (role?.toLowerCase()) {
       case "saasowner":
         router.push("/saasowner/dashboard");
         break;
       case "restaurant_owner":
-        router.push("/restaurant-owners");
+      case "owner":
+        router.push("/restaurant-owners/dashboard");
         break;
       case "manager":
         router.push("/manager/dashboard");
         break;
       case "customer":
-        router.push("/");
-        break;
+      case "user":
       default:
         router.push("/");
         break;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const axiosResponse = await axios.post<LoginResponse>(
+        "http://localhost:9999/api/auth/Login",
+        { email, password },
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      const result = axiosResponse.data;
+
+      if (!result || result.error || !result.success) {
+        setError(result?.message || "Login failed. Please try again.");
+        return;
+      }
+
+      const user = result.data?.user;
+      const token = result.data?.token;
+
+      if (token) {
+        localStorage.setItem("token", token);
+      }
+
+      if (user) {
+        // Normalize role name fallback
+        const normalizedUser = { ...user, role: user.role || "customer", name: user.name || user.email };
+        localStorage.setItem("currentUser", JSON.stringify(normalizedUser));
+
+        // Update AuthContext if available
+        if (auth?.setCurrentUser) {
+          try {
+            auth.setCurrentUser(normalizedUser);
+          } catch {
+            // ignore
+          }
+        }
+      }
+
+      // Redirect based on role
+      redirectBasedOnRole(user?.role || "customer");
+    } catch (err) {
+      console.error("Login error:", err);
+      if (axios.isAxiosError(err)) {
+        const axErr = err as AxiosError<any>;
+        const msg = axErr.response?.data?.message || axErr.message || "Login failed. Please try again.";
+        setError(msg);
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -102,7 +125,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       setError("");
 
       // Implement Google OAuth - this would redirect to your backend OAuth endpoint
-      window.location.href = "http://localhost:3001/api/auth/google";
+      window.location.href = "http://localhost:9999/api/auth/google";
     } catch (err) {
       console.error("Google login error:", err);
       setError("Google login failed. Please try again.");
@@ -118,12 +141,10 @@ const handleSubmit = async (e: React.FormEvent) => {
         <div className="container px-4 mx-auto">
           <div className="max-w-md p-8 mx-auto bg-white shadow-xl rounded-2xl">
             <div className="mb-8 text-center">
-              <h1 className="mb-2 font-serif text-3xl font-bold text-shadow-amber-500">
+              <h1 className="mb-2 font-serif text-3xl font-bold text-amber-600">
                 Welcome Back
               </h1>
-              <p className="text-gray-600">
-                Sign in to your RestaurantPro account
-              </p>
+              <p className="text-gray-600">Sign in to your DineFlow account</p>
             </div>
 
             {error && (
@@ -151,7 +172,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                   placeholder="Enter your email"
                   required
                   disabled={loading}
@@ -170,7 +191,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-4 py-3 transition-colors border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                   placeholder="Enter your password"
                   required
                   disabled={loading}
@@ -202,6 +223,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 variant="secondary"
                 className="flex items-center justify-center w-full gap-3 border border-gray-300 hover:bg-gray-50"
                 disabled={loading}
+                type="button"
               >
                 <FcGoogle size={22} />
                 Continue with Google
@@ -213,7 +235,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 Don&apos;t have an account?{" "}
                 <Link
                   href="/signup"
-                  className="font-medium text-primary-600 hover:text-primary-700"
+                  className="font-medium text-amber-600 hover:text-amber-700"
                 >
                   Sign up
                 </Link>

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
-import { OrderAddress, DeliveryBoy } from './OrderDetails';
+import { OrderAddress, DeliveryBoy } from '../../types/order';
 
 interface DeliveryInfoProps {
   address: OrderAddress;
@@ -31,7 +31,6 @@ const DeliveryInfo = ({ address, deliveryBoy }: DeliveryInfoProps) => {
 
   return (
     <div ref={containerRef} className="space-y-6">
-      {/* Delivery Address */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center space-x-3 mb-4">
           <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -72,7 +71,6 @@ const DeliveryInfo = ({ address, deliveryBoy }: DeliveryInfoProps) => {
         </div>
       </div>
 
-      {/* Delivery Boy Info */}
       {deliveryBoy && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center space-x-3 mb-4">
@@ -86,12 +84,10 @@ const DeliveryInfo = ({ address, deliveryBoy }: DeliveryInfoProps) => {
           </div>
 
           <div className="flex items-center space-x-4 mb-4">
-            {/* Delivery Boy Avatar */}
             <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white text-2xl">
               {deliveryBoy.image}
             </div>
 
-            {/* Delivery Boy Details */}
             <div className="flex-1">
               <h4 className="font-semibold text-gray-900">{deliveryBoy.name}</h4>
               <div className="flex items-center space-x-2 text-sm text-gray-600 mb-1">
@@ -103,7 +99,6 @@ const DeliveryInfo = ({ address, deliveryBoy }: DeliveryInfoProps) => {
             </div>
           </div>
 
-          {/* Contact Options */}
           <div className="space-y-3">
             {!showContact ? (
               <button
@@ -137,7 +132,6 @@ const DeliveryInfo = ({ address, deliveryBoy }: DeliveryInfoProps) => {
             )}
           </div>
 
-          {/* Delivery Status */}
           <div className="mt-4 pt-4 border-t border-gray-200">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">Current Status:</span>

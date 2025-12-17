@@ -5,7 +5,7 @@ import {
   showConfirmDialog, 
   showSuccessToast, 
   showErrorAlert,
-  showInfoAlert  // ADD THIS IMPORT
+  showInfoAlert
 } from '../../utils/sweetAlert';
 
 const OrderCard = ({ order, onViewDetails, showActions = true }: OrderCardProps) => {
@@ -62,7 +62,6 @@ const OrderCard = ({ order, onViewDetails, showActions = true }: OrderCardProps)
   const handleReorder = async (e: React.MouseEvent) => {
     e.preventDefault();
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       showSuccessToast('Items added to cart for reorder!');
     } catch (error) {
@@ -87,7 +86,6 @@ const OrderCard = ({ order, onViewDetails, showActions = true }: OrderCardProps)
     
     if (isConfirmed) {
       try {
-        // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1000));
         showSuccessToast('Order deleted successfully!');
       } catch (error) {
@@ -99,7 +97,6 @@ const OrderCard = ({ order, onViewDetails, showActions = true }: OrderCardProps)
   const handlePayNow = async (e: React.MouseEvent) => {
     e.preventDefault();
     showInfoAlert('Redirecting to payment page...', 'Complete Payment');
-    // Redirect to payment page
   };
 
   return (
@@ -123,12 +120,11 @@ const OrderCard = ({ order, onViewDetails, showActions = true }: OrderCardProps)
         </div>
       </div>
 
-      {/* Payment Status */}
       <div className="flex items-center space-x-4 mb-4">
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-600">Payment:</span>
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPaymentStatusColor(order.paymentStatus)}`}>
-            {order.paymentStatus.toUpperCase()}
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPaymentStatusColor(order.paymentStatus || 'pending')}`}>
+            {(order.paymentStatus || 'pending').toUpperCase()}
           </span>
         </div>
         <div className="flex items-center space-x-2">

@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
+import { Star, MessageSquare } from "lucide-react";
+import Link from "next/link";
 
 const testimonials = [
   {
@@ -93,9 +94,39 @@ export default function TestimonialsSection() {
           Start your free 30-day trial. No credit card required. No long-term
           contract.
         </p>
-        <button className="px-8 py-3 font-semibold text-white transition-all rounded-full shadow-md bg-linear-to-r from-yellow-400 to-yellow-600 hover:shadow-lg">
-          Start Your Free Trial
-        </button>
+
+        <div className="flex flex-wrap justify-center gap-4">
+          {/* Share Your Experience Button */}
+          <Link
+            href="/review"
+            className="inline-flex items-center gap-2 px-6 py-3 font-semibold text-white transition-all duration-300 rounded-full shadow-md bg-linear-to-r from-blue-500 to-purple-600 hover:shadow-lg hover:from-blue-600 hover:to-purple-700"
+          >
+            <MessageSquare className="w-5 h-5" />
+            Share Your Experience
+          </Link>
+
+          {/* Start Free Trial Button */}
+          <button className="inline-flex items-center gap-2 px-6 py-3 font-semibold text-white transition-all duration-300 rounded-full shadow-md bg-linear-to-r from-yellow-400 to-yellow-600 hover:shadow-lg hover:from-yellow-500 hover:to-yellow-700">
+            <Star className="w-5 h-5" />
+            Start Your Free Trial
+          </button>
+        </div>
+        
+        {/* Alternative: Single row with both buttons side by side */}
+        <div className="flex justify-center gap-4 mt-8">
+          <Link
+            href="/review"
+            className="inline-flex items-center gap-2 px-6 py-3 font-medium transition-all duration-300 border-2 border-blue-500 rounded-full text-blue-600 hover:bg-blue-50 hover:border-blue-600"
+          >
+            <MessageSquare className="w-5 h-5" />
+            Write a Review
+          </Link>
+          
+          <button className="inline-flex items-center gap-2 px-6 py-3 font-medium text-white transition-all duration-300 rounded-full bg-linear-to-r from-yellow-400 to-yellow-600 hover:shadow-lg">
+            <Star className="w-5 h-5" />
+            Try Free for 30 Days
+          </button>
+        </div>
       </div>
     </section>
   );

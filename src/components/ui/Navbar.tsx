@@ -3,12 +3,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Button from './Buttons';
-import { navigation } from '../../data/navigation';
+import UserProfile from './UserProfile';
+import { useAuth } from '../../Context/AuthContext';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { currentUser, isAuthenticated } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,74 +20,128 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Navigation items for authenticated users
+  const authenticatedNavigation = [
+    { name: 'Home', href: '/' },
+    { name: 'Hotels', href: '/hotels' },
+    { name: 'Orders', href: '/orders' },
+  ];
+
+  // Navigation items for non-authenticated users
+  const publicNavigation = [
+    { name: 'Home', href: '/' },
+    { name: 'Hotels', href: '/hotels' },
+    { name: 'About', href: '/about' },
+    { name: 'Contact', href: '/contact' },
+  ];
+
+  const navigationItems = isAuthenticated ? authenticatedNavigation : publicNavigation;
+
   return (
-    <nav className={`fixed top-0 w-full z-50 transition-all  duration-300 ${
+    <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
       isScrolled ? 'bg-white backdrop-blur-lg shadow-lg' : 'bg-transparent'
     }`}>
       <div className="container px-4 mx-auto">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-6 h-6 rounded-lg sm:w-8 sm:h-8 bg-linear-to-r from-primary-600 to-primary-400" />
+            <div className="w-6 h-6 rounded-lg sm:w-8 sm:h-8 bg-gradient-to-r from-amber-600 to-amber-400" />
             <span className="font-serif text-xl font-bold sm:text-2xl text-amber-700">DineFlow</span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="items-center hidden space-x-8 md:flex">
-            {navigation.map((item) => (
+            {navigationItems.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className={`font-medium transition-colors duration-200  ${
+                className={`font-medium transition-colors duration-200 ${
                   pathname === item.href
                     ? 'text-amber-500'
-                    : 'text-amber-700 hover:text-primary-600'
+                    : 'text-amber-700 hover:text-amber-600'
                 }`}
               >
                 {item.name}
               </Link>
             ))}
-            <Button variant="primary">Get Started</Button>
+            
+            {isAuthenticated ? (
+              <UserProfile />
+            ) : (
+              <>
+                <Link href="/login">
+                  <Button variant="outline" className="text-amber-600 border-amber-600 hover:bg-amber-50">
+                    Login
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button variant="primary" className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700">
+                    Get Started
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 transition-colors rounded-lg text-amber-400 md:hidden hover:bg-gray-100"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {isMobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
+          <div className="flex items-center space-x-2 md:hidden">
+            {isAuthenticated && (
+              <div className="mr-2">
+                <UserProfile showMobileView={true} />
+              </div>
+            )}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 transition-colors rounded-lg text-amber-400 hover:bg-amber-50"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {isMobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="py-4 border-t border-gray-200 md:hidden">
+          <div className="py-4 border-t border-amber-100 md:hidden bg-white rounded-b-lg shadow-lg">
             <div className="flex flex-col space-y-4">
-              {navigation.map((item) => (
+              {navigationItems.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     pathname === item.href
-                      ? 'text-primary-600 bg-primary-50'
-                      : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
+                      ? 'text-amber-600 bg-amber-50'
+                      : 'text-amber-700 hover:text-amber-600 hover:bg-amber-50'
                   }`}
                 >
                   {item.name}
                 </Link>
               ))}
-              <div className="px-4 pt-2">
-                <Button variant="primary" className="justify-center w-full text-amber-600">
-                  Get Started
-                </Button>
-              </div>
+              
+              {!isAuthenticated && (
+                <>
+                  <div className="px-4 pt-2">
+                    <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button variant="outline" className="justify-center w-full text-amber-600 border-amber-600 hover:bg-amber-50">
+                        Login
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className="px-4">
+                    <Link href="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button variant="primary" className="justify-center w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700">
+                        Get Started
+                      </Button>
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
