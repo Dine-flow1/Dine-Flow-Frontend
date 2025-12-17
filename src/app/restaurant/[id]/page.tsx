@@ -7,6 +7,7 @@ import { MenuItem } from "@/types/restaurant";
 import MenuFilters from '@/components/restaurants/MenuFilters';
 import RestaurantHeader from '@/components/restaurants/RestaurantHeader';
 import TableBooking from '@/components/restaurants/TableBooking';
+import RestaurantFeedback from '@/components/reviews/RestaurantFeedback';
 
 interface RestaurantPageProps {
   params: {
@@ -18,14 +19,12 @@ interface RestaurantPageProps {
 function RestaurantLoading() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Skeleton Header */}
       <div className="relative h-96 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse">
         <div className="absolute inset-0 bg-black/30"></div>
       </div>
-      
+
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Skeleton Sidebar */}
           <div className="lg:w-1/3 space-y-6">
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="h-6 bg-gray-200 rounded w-3/4 mb-4 animate-pulse"></div>
@@ -45,7 +44,6 @@ function RestaurantLoading() {
             </div>
           </div>
 
-          {/* Skeleton Menu */}
           <div className="lg:w-2/3">
             <div className="h-8 bg-gray-200 rounded w-1/3 mb-6 animate-pulse"></div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -79,7 +77,7 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
   // Fetch restaurant data
   const restaurants = await getRestaurants();
   const restaurant = restaurants.find((r) => r._id === params.id);
-  
+
   if (!restaurant) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
@@ -91,8 +89,8 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
           <p className="text-gray-600 mb-8">
             We couldn't find the restaurant you're looking for. It may have been removed or doesn't exist.
           </p>
-          <a 
-            href="/restaurants" 
+          <a
+            href="/restaurants"
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full hover:shadow-lg transition-all duration-300 hover:scale-105"
           >
             Browse Restaurants
@@ -121,7 +119,7 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
       <div className="relative h-[500px] md:h-[600px] overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0">
-          <div 
+          <div
             className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent"
             style={{
               backgroundImage: `url('/api/placeholder/1200/600')`,
@@ -151,8 +149,8 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
             <div className="max-w-3xl">
               <div className="flex items-center gap-3 mb-4">
                 {categories.slice(0, 3).map(category => (
-                  <span 
-                    key={category} 
+                  <span
+                    key={category}
                     className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-full text-sm font-medium"
                   >
                     {category}
@@ -164,11 +162,11 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
                   </span>
                 )}
               </div>
-              
+
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-tight">
                 {restaurant.name}
               </h1>
-              
+
               <p className="text-xl text-white/90 mb-6 max-w-2xl">
                 {restaurant.description}
               </p>
@@ -178,7 +176,7 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
                 <div className="flex items-center gap-2">
                   <div className="flex items-center">
                     {[...Array(5)].map((_, i) => (
-                      <Star 
+                      <Star
                         key={i}
                         className={`h-5 w-5 ${i < Math.floor(restaurant.rating || 0) ? 'fill-yellow-400 text-yellow-400' : 'text-white/30'}`}
                       />
@@ -187,17 +185,17 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
                   <span className="text-white font-semibold">{restaurant.rating}</span>
                   <span className="text-white/70">({restaurant.reviewCount || '100+'} reviews)</span>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   <Clock className="h-5 w-5 text-white/80" />
                   <span className="text-white font-medium">{restaurant.deliveryTime || '30-45'} mins</span>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   <span className="text-white font-medium">
-                    {restaurant.priceRange === 'budget' ? '$' : 
-                     restaurant.priceRange === 'moderate' ? '$$' : 
-                     restaurant.priceRange === 'expensive' ? '$$$' : '$$$$'}
+                    {restaurant.priceRange === 'budget' ? '$' :
+                      restaurant.priceRange === 'moderate' ? '$$' :
+                        restaurant.priceRange === 'expensive' ? '$$$' : '$$$$'}
                   </span>
                   <span className="text-white/70">• {restaurant.cuisine}</span>
                 </div>
@@ -225,13 +223,13 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
                 <MapPin className="h-5 w-5 text-blue-600" />
                 Location & Contact
               </h3>
-              
+
               <div className="space-y-6">
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Address</p>
                   <p className="text-gray-900 font-medium">{restaurant.address || '123 Main Street, City'}</p>
                 </div>
-                
+
                 <div>
                   <p className="text-sm text-gray-500 mb-1">Phone</p>
                   <p className="text-gray-900 font-medium flex items-center gap-2">
@@ -239,11 +237,11 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
                     {restaurant.phone || '(123) 456-7890'}
                   </p>
                 </div>
-                
+
                 {restaurant.website && (
                   <div>
                     <p className="text-sm text-gray-500 mb-1">Website</p>
-                    <a 
+                    <a
                       href={restaurant.website}
                       className="text-blue-600 font-medium flex items-center gap-2 hover:text-blue-700"
                     >
@@ -309,7 +307,7 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
                   <h2 className="text-3xl font-bold text-gray-900 mb-2">Our Menu</h2>
                   <p className="text-gray-600">Discover our delicious selection of {restaurant.menu?.length || 0} items</p>
                 </div>
-                
+
                 {/* Search and Filter */}
                 <div className="flex flex-col sm:flex-row gap-4">
                   <div className="relative">
@@ -333,7 +331,7 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
                   All Menu
                 </button>
                 {categories.map(category => (
-                  <button 
+                  <button
                     key={category}
                     className="px-6 py-3 bg-white border border-gray-200 rounded-full font-medium hover:border-blue-500 hover:text-blue-600 transition-all"
                   >
@@ -359,7 +357,7 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {menuCategories[category].map((item: MenuItem) => (
-                      <div 
+                      <div
                         key={item._id}
                         className="group bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-100"
                       >
@@ -407,7 +405,7 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
                                 </span>
                               )}
                             </div>
-                            
+
                             <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-medium hover:shadow-lg hover:scale-105 transition-all duration-300">
                               Add to Cart
                             </button>
@@ -438,7 +436,7 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
                   {/* Popular Items Carousel */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {restaurant.menu.slice(0, 3).map((item: MenuItem) => (
-                      <div 
+                      <div
                         key={item._id}
                         className="bg-gradient-to-br from-orange-50 to-red-50 rounded-3xl p-6 border border-orange-100"
                       >
@@ -472,7 +470,7 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
                   <h2 className="text-4xl font-bold text-gray-900 mb-4">
                     🎭 Book Your Tables
                   </h2>
-                  
+
                 </div>
 
                 <TableBooking restaurantId={restaurant._id} restaurantName={String(restaurant.name)} />
@@ -519,6 +517,12 @@ async function RestaurantContent({ params }: { params: { id: string } }) {
           </button>
         </div>
       </div>
+      <section className="my-20">
+        <div className="max-w-3xl mx-auto">
+          <RestaurantFeedback restaurantId={restaurant._id} />
+        </div>
+      </section>
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-2xl lg:hidden"></div>
     </div>
   );
 }
