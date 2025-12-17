@@ -40,12 +40,13 @@ export default function LoginPage() {
   }, [message]);
 
   const redirectBasedOnRole = (role?: string) => {
-    switch (role?.toLowerCase()) {
+    console.log(role);
+    switch (role) {
+      
       case "saasowner":
         router.push("/saasowner/dashboard");
         break;
       case "restaurant_owner":
-      case "owner":
         router.push("/restaurant-owners/dashboard");
         break;
       case "manager":
@@ -234,7 +235,7 @@ export default function LoginPage() {
               <p className="text-gray-600">
                 Don&apos;t have an account?{" "}
                 <Link
-                  href="/signup"
+                  href="/signUp"
                   className="font-medium text-amber-600 hover:text-amber-700"
                 >
                   Sign up

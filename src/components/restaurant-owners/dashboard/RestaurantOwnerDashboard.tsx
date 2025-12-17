@@ -5,12 +5,12 @@ import Sidebar from './Sidebar';
 import { Overview } from '../../restaurant-owners/sections/Overview';
 import { Managers } from '../sections/Managers';
 import { Verifications } from '../sections/Verifications';
-import { MenuController } from '../sections/MenuController';
 import { Branches } from '../../restaurant-owners/sections/Branches';
 import { Finance } from '../sections/Finance';
 import { StaffManagement } from '../sections/StaffManagement';
 import Header from './Header';
 import { gsap } from 'gsap';
+import MenuController from '../sections/MenuController';
 
 type DashboardSection = 
   | 'overview' 
