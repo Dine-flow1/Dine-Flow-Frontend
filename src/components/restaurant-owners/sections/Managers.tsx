@@ -1,206 +1,318 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { gsap } from 'gsap';
-import { UserPlus, Search, Edit, Trash2, Check, X } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { gsap } from "gsap";
+import { UserPlus, Search, Edit, Trash2 } from "lucide-react";
+
+import {
+  getAllManagers,
+  createManager,
+  updateManager,
+  deleteManager,
+  toggleManagerStatus,
+} from "@/app/services/Restaurant/Manager/managerService";
+
+import { getBranchesByOwner } from "@/app/services/branchService";
 
 interface Manager {
-  id: number;
-  name: string;
+  _id: string;
+  fullName: string;
   email: string;
-  restaurant: string;
-  status: 'active' | 'inactive';
-  joinDate: string;
+  isActive: boolean;
+  createdAt: string;
+  managedBranches: { _id: string; branchName: string }[];
+}
+
+interface Branch {
+  _id: string;
+  branchName: string;
 }
 
 export function Managers() {
-  const [managers, setManagers] = useState<Manager[]>([
-    { id: 1, name: 'John Smith', email: 'john@restaurant.com', restaurant: 'Main Branch', status: 'active', joinDate: '2023-01-15' },
-    { id: 2, name: 'Sarah Johnson', email: 'sarah@restaurant.com', restaurant: 'Downtown Branch', status: 'active', joinDate: '2023-02-20' },
-    { id: 3, name: 'Mike Wilson', email: 'mike@restaurant.com', restaurant: 'Uptown Branch', status: 'inactive', joinDate: '2023-03-10' },
-  ]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [managers, setManagers] = useState<Manager[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newManager, setNewManager] = useState({ name: '', email: '', restaurant: '' });
+  const [editingManagerId, setEditingManagerId] = useState<string | null>(null);
 
-  useEffect(() => {
-    gsap.from('.manager-card', {
-      duration: 0.5,
-      y: 20,
-      opacity: 1,
-      stagger: 0.1,
-      ease: 'power3.out'
-    });
-  }, []);
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    branchId: "",
+  });
 
-  const filteredManagers = managers.filter(manager =>
-    manager.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    manager.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleAddManager = () => {
-    if (newManager.name && newManager.email && newManager.restaurant) {
-      const newManagerObj: Manager = {
-        id: managers.length + 1,
-        ...newManager,
-        status: 'active',
-        joinDate: new Date().toISOString().split('T')[0]
-      };
-      setManagers([...managers, newManagerObj]);
-      setNewManager({ name: '', email: '', restaurant: '' });
-      setShowAddForm(false);
+  // ---------------- FETCH MANAGERS ----------------
+  const fetchManagers = async () => {
+    try {
+      const data = await getAllManagers();
+      setManagers(data);
+    } catch (err) {
+      console.error("Fetch managers failed", err);
     }
   };
 
-  const toggleStatus = (id: number) => {
-    setManagers(managers.map(manager =>
-      manager.id === id
-        ? { ...manager, status: manager.status === 'active' ? 'inactive' : 'active' }
-        : manager
-    ));
+  // ---------------- FETCH BRANCHES (FIXED) ----------------
+  const fetchBranches = async () => {
+    try {
+      const res = await getBranchesByOwner();
+      console.log(res);
+      
+      setBranches(res || []);
+    } catch (err) {
+      console.error("Fetch branches failed", err);
+      setBranches([]);
+    }
   };
 
-  const deleteManager = (id: number) => {
-    setManagers(managers.filter(manager => manager.id !== id));
+  useEffect(() => {
+    fetchManagers();
+    fetchBranches();
+
+    gsap.from(".manager-row", {
+      opacity: 0,
+      y: 20,
+      duration: 0.4,
+      stagger: 0.05,
+    });
+  }, []);
+
+  // ---------------- FILTER ----------------
+  const filteredManagers = managers.filter(
+    (m) =>
+      m.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      m.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // ---------------- ADD / UPDATE ----------------
+  const handleSaveManager = async () => {
+    try {
+      if (!formData.branchId) {
+        alert("Please select a branch");
+        return;
+      }
+
+      if (editingManagerId) {
+        await updateManager(editingManagerId, {
+          fullName: formData.fullName,
+          email: formData.email,
+          branchIds: [formData.branchId], // ✅ REQUIRED BY BACKEND
+        });
+      } else {
+        await createManager({
+          fullName: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          branchIds: [formData.branchId], // ✅ REQUIRED BY BACKEND
+        });
+      }
+
+      await fetchManagers();
+      resetForm();
+    } catch (err) {
+      console.error("Save failed", err);
+      alert("Failed to save manager");
+    }
   };
 
+  // ---------------- DELETE ----------------
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this manager?")) return;
+    await deleteManager(id);
+    fetchManagers();
+  };
+
+  // ---------------- TOGGLE STATUS ----------------
+  const handleToggleStatus = async (id: string) => {
+    await toggleManagerStatus(id);
+    fetchManagers();
+  };
+
+  // ---------------- RESET FORM ----------------
+  const resetForm = () => {
+    setShowAddForm(false);
+    setEditingManagerId(null);
+    setFormData({
+      fullName: "",
+      email: "",
+      password: "",
+      branchId: "",
+    });
+  };
+
+  // ---------------- UI ----------------
+  console.log(branches);
+  
   return (
     <div>
+      {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Manage Managers</h1>
-          <p className="text-gray-600">Manage and oversee restaurant managers</p>
+          <h1 className="text-2xl font-bold">Manage Managers</h1>
+          <p className="text-gray-600">
+            Create, update and control restaurant managers
+          </p>
         </div>
+
         <button
           onClick={() => setShowAddForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700 transition-colors"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
         >
-          <UserPlus className="h-5 w-5" />
-          <span>Add Manager</span>
+          <UserPlus size={18} /> Add Manager
         </button>
       </div>
 
+      {/* ADD / EDIT FORM */}
       {showAddForm && (
-        <div className="bg-white p-6 rounded-xl shadow-sm mb-6 animate-slideDown">
-          <h3 className="text-lg font-semibold mb-4">Add New Manager</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white p-6 rounded-xl shadow mb-6">
+          <h3 className="font-semibold mb-4">
+            {editingManagerId ? "Update Manager" : "Add Manager"}
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <input
-              type="text"
               placeholder="Full Name"
-              value={newManager.name}
-              onChange={(e) => setNewManager({...newManager, name: e.target.value})}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={formData.fullName}
+              onChange={(e) =>
+                setFormData({ ...formData, fullName: e.target.value })
+              }
+              className="border p-2 rounded"
             />
+
             <input
+              placeholder="Email"
               type="email"
-              placeholder="Email Address"
-              value={newManager.email}
-              onChange={(e) => setNewManager({...newManager, email: e.target.value})}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+              className="border p-2 rounded"
             />
-            <input
-              type="text"
-              placeholder="Restaurant Branch"
-              value={newManager.restaurant}
-              onChange={(e) => setNewManager({...newManager, restaurant: e.target.value})}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <div className="flex justify-end space-x-3 mt-4">
-            <button
-              onClick={() => setShowAddForm(false)}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+
+            {!editingManagerId && (
+              <input
+                placeholder="Password"
+                type="password"
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+                className="border p-2 rounded"
+              />
+            )}
+
+            <select
+              value={formData.branchId}
+              onChange={(e) =>
+                setFormData({ ...formData, branchId: e.target.value })
+              }
+              className="border p-2 rounded"
             >
+              <option value="">Select Branch</option>
+              {branches.map((b) => (
+                <option key={b.branchId} value={b.branchId}>
+                  {b.branchName}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-4">
+            <button onClick={resetForm} className="border px-4 py-2 rounded">
               Cancel
             </button>
             <button
-              onClick={handleAddManager}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              onClick={handleSaveManager}
+              className="bg-blue-600 text-white px-4 py-2 rounded"
             >
-              Add Manager
+              {editingManagerId ? "Update" : "Save"}
             </button>
           </div>
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-gray-200">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <input
-              type="search"
-              placeholder="Search managers..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
+      {/* SEARCH */}
+      <div className="bg-white p-4 rounded-xl shadow mb-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-3 text-gray-400" size={18} />
+          <input
+            placeholder="Search managers..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 p-2 border rounded"
+          />
         </div>
+      </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="py-3 px-6 text-left text-sm font-medium text-gray-700">Name</th>
-                <th className="py-3 px-6 text-left text-sm font-medium text-gray-700">Email</th>
-                <th className="py-3 px-6 text-left text-sm font-medium text-gray-700">Restaurant</th>
-                <th className="py-3 px-6 text-left text-sm font-medium text-gray-700">Status</th>
-                <th className="py-3 px-6 text-left text-sm font-medium text-gray-700">Join Date</th>
-                <th className="py-3 px-6 text-left text-sm font-medium text-gray-700">Actions</th>
+      {/* TABLE */}
+      <div className="bg-white rounded-xl shadow overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="p-3 text-left">Name</th>
+              <th className="p-3 text-left">Email</th>
+              <th className="p-3 text-left">Branch</th>
+              <th className="p-3 text-left">Status</th>
+              <th className="p-3 text-left">Join Date</th>
+              <th className="p-3 text-left">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filteredManagers.map((manager) => (
+              <tr key={manager._id} className="manager-row border-t">
+                <td className="p-3">{manager.fullName}</td>
+                <td className="p-3">{manager.email}</td>
+                <td className="p-3">
+                  {manager.managedBranches.length
+                    ? manager.managedBranches
+                        .map((b) => b.branchName)
+                        .join(", ")
+                    : "N/A"}
+                </td>
+                <td className="p-3">
+                  <button
+                    onClick={() => handleToggleStatus(manager._id)}
+                    className={`px-3 py-1 rounded-full text-sm ${
+                      manager.isActive
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {manager.isActive ? "Active" : "Inactive"}
+                  </button>
+                </td>
+                <td className="p-3">
+                  {new Date(manager.createdAt).toLocaleDateString()}
+                </td>
+                <td className="p-3 flex gap-2">
+                  <button
+                    onClick={() => {
+                      setEditingManagerId(manager._id);
+                      setShowAddForm(true);
+                      setFormData({
+                        fullName: manager.fullName,
+                        email: manager.email,
+                        password: "",
+                        branchId: manager.managedBranches[0]?._id || "",
+                      });
+                    }}
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded"
+                  >
+                    <Edit size={16} />
+                  </button>
+
+                  <button
+                    onClick={() => handleDelete(manager._id)}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {filteredManagers.map((manager) => (
-                <tr key={manager.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="py-4 px-6">
-                    <div className="flex items-center">
-                      <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span className="text-blue-600 font-semibold">
-                          {manager.name.charAt(0)}
-                        </span>
-                      </div>
-                      <div className="ml-4">
-                        <p className="font-medium">{manager.name}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 text-gray-600">{manager.email}</td>
-                  <td className="py-4 px-6">
-                    <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
-                      {manager.restaurant}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <button
-                      onClick={() => toggleStatus(manager.id)}
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        manager.status === 'active'
-                          ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                          : 'bg-red-100 text-red-800 hover:bg-red-200'
-                      }`}
-                    >
-                      {manager.status === 'active' ? 'Active' : 'Inactive'}
-                    </button>
-                  </td>
-                  <td className="py-4 px-6 text-gray-600">{manager.joinDate}</td>
-                  <td className="py-4 px-6">
-                    <div className="flex space-x-2">
-                      <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button 
-                        onClick={() => deleteManager(manager.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
